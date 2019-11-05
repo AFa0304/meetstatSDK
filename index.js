@@ -1,20 +1,21 @@
 export class Trigger{
-    constructor(triggerID=""){
+    constructor(triggerID="",isBeta=false){
         this.triggerID = triggerID
+        this.isBeta = isBeta
     }
     //觸發Trigger
     trigger(){
         return new Promise((resolve,reject)=>{
             try{
                 const apiUrl = "/Trigger/"+this.triggerID
-                const tokens = getTriggerToken(this.triggerID)
+                const tokens = getTriggerToken(this.triggerID,this.isBeta)
                 const headerSetting = [
                     {
                         name:"RequestToken",
                         value:tokens.RequestToken
                     }
                 ]
-                resolve(httpRequest("post",apiUrl,false,{},headerSetting))
+                resolve(httpRequest("post",apiUrl,false,{},headerSetting,this.isBeta))
             }catch(error){
                 reject(JSON.parse(error.message))
             }
@@ -22,15 +23,16 @@ export class Trigger{
     }
 }
 export class Quest {
-    constructor(questID=""){
+    constructor(questID="",isBeta=false){
         this.questID = questID
+        this.isBeta = isBeta
     }
     //取得問卷
     getQuest(){
         return new Promise((resolve,reject)=>{
             try{
                 const apiUrl = "/Quest/"+this.questID
-                resolve(httpRequest("get",apiUrl))
+                resolve(httpRequest("get",apiUrl,false,{},[],this.isBeta))
             }catch(error){
                 reject(JSON.parse(error.message))
             }
@@ -41,7 +43,7 @@ export class Quest {
         return new Promise((resolve,reject)=>{
             try{
                 const apiUrl = "/Quest/"+this.questID
-                resolve(httpRequest("post",apiUrl,false,data))
+                resolve(httpRequest("post",apiUrl,false,data,[],this.isBeta))
             }catch(error){
                 reject(JSON.parse(error.message))
             }
@@ -55,7 +57,7 @@ export class Quest {
                 const postData = {
                     "Email":email
                 }
-                resolve(httpRequest("post",apiUrl,false,postData))
+                resolve(httpRequest("post",apiUrl,false,postData,[],this.isBeta))
             }catch(error){
                 reject(JSON.parse(error.message))
             }
@@ -70,7 +72,7 @@ export class Quest {
                     "Name": name,
                     "Value": value
                 }
-                resolve(httpRequest("post",apiUrl,false,postData))
+                resolve(httpRequest("post",apiUrl,false,postData,[],this.isBeta))
             }catch(error){
                 reject(JSON.parse(error.message))
             }
@@ -78,19 +80,20 @@ export class Quest {
     }
 }
 export class Event {
-    constructor(eventID="",idToken=""){
+    constructor(eventID="",idToken="",isBeta=false){
+        this.isBeta = isBeta
         this.eventID = eventID
         this.idToken = idToken
-        this.agendaList = getAgendaList(eventID)
-        this.questList = getQuestList(eventID)
-        this.luckyDrawList = getLuckyDrawList(eventID)
+        this.agendaList = getAgendaList(eventID,this.isBeta)
+        this.questList = getQuestList(eventID,this.isBeta)
+        this.luckyDrawList = getLuckyDrawList(eventID,this.isBeta)
     }
     //取得獎品清單
     getLuckyDrawList(){
         return new Promise((resolve,reject)=>{
             try{
                 const apiUrl = "/"+this.eventID+"/LuckyDraw"
-                resolve(httpRequest("get",apiUrl).Items)
+                resolve(httpRequest("get",apiUrl,false,{},[],this.isBeta).Items)
             }catch(error){
                 reject(JSON.parse(error.message))
             }
@@ -117,7 +120,7 @@ export class Event {
                 
                 resultAry.length===1? agendaID=resultAry[0].ID : resultAry.length>1?reject(new Error("查到多組包含'"+searchStr+"'的Agenda")) : reject(new Error("查無包含'"+searchStr+"'的Agenda"))
             }
-            resolve(httpRequest("get","/"+this.eventID+"/Agenda/"+agendaID))
+            resolve(httpRequest("get","/"+this.eventID+"/Agenda/"+agendaID,false,{},[],this.isBeta))
         })
     }
     // 取得Speaker資料
@@ -125,7 +128,7 @@ export class Event {
         return new Promise((resolve,reject)=>{
             try{
                 const apiUrl = "/"+this.eventID+"/Agenda/Speaker/"+speakerID
-                resolve(httpRequest("get",apiUrl))
+                resolve(httpRequest("get",apiUrl,false,{},[],this.isBeta))
             }catch(error){
                 reject(JSON.parse(error.message))
             }
@@ -138,7 +141,7 @@ export class Event {
             "FrontSiteURL": window.location.href
         }
         try{
-            httpRequest("post",apiUrl,false,data)
+            httpRequest("post",apiUrl,false,data,[],this.isBeta)
         }catch(error){
             console.log(error)
         }
@@ -157,7 +160,7 @@ export class Event {
                         value:"bearer "+this.idToken
                     }
                 ]
-                resolve(httpRequest("post",apiUrl,false,data,headerConfig))
+                resolve(httpRequest("post",apiUrl,false,data,headerConfig,this.isBeta))
             }catch(error){
                 reject(JSON.parse(error.message))
             }
@@ -174,7 +177,7 @@ export class Event {
                         value:"bearer "+this.idToken
                     }
                 ]
-                resolve(httpRequest("get",apiUrl,false,{},headerConfig))
+                resolve(httpRequest("get",apiUrl,false,{},headerConfig,this.isBeta))
             }catch(error){
                 reject(JSON.parse(error.message))
             }
@@ -190,7 +193,7 @@ export class Event {
                         value:"bearer "+this.idToken
                     }
                 ]
-                resolve(httpRequest("get",apiUrl,false,{},headerConfig))
+                resolve(httpRequest("get",apiUrl,false,{},headerConfig,this.isBeta))
             }catch(error){
                 reject(JSON.parse(error.message))
             }
@@ -207,7 +210,7 @@ export class Event {
                         value:"bearer "+this.idToken
                     }
                 ]
-                resolve(httpRequest("get",apiUrl,false,{},headerConfig))
+                resolve(httpRequest("get",apiUrl,false,{},headerConfig,this.isBeta))
             }catch(error){
                 reject(JSON.parse(error.message))
             }
@@ -215,28 +218,28 @@ export class Event {
     }
 }
 // 取得Trigger AntiforgeryToken
-function getTriggerToken(triggerID){
+function getTriggerToken(triggerID,isBeta){
     try{
         const apiUrl = "/Trigger/"+triggerID
-        return (httpRequest("get",apiUrl))
+        return (httpRequest("get",apiUrl,false,{},[],isBeta))
     }catch(error){
         return (JSON.parse(error.message))
     }
 }
 //取得獎項清單
-function getLuckyDrawList(eventID){
+function getLuckyDrawList(eventID,isBeta){
     const apiUrl = "/"+eventID+"/LuckyDraw"
-    return (httpRequest("get",apiUrl).Items)
+    return (httpRequest("get",apiUrl,false,{},[],isBeta).Items)
 }
 //取得問卷清單
-function getQuestList(eventID){
+function getQuestList(eventID,isBeta){
     const apiUrl = "/" + eventID + "/GetQuest"
-    return (httpRequest("get",apiUrl).Items)
+    return (httpRequest("get",apiUrl,false,{},[],isBeta).Items)
 }
 // 取得Agenda清單
-function getAgendaList(eventID){
+function getAgendaList(eventID,isBeta){
     const apiUrl = "/" + eventID + "/Agenda"
-    return (httpRequest("get",apiUrl).Agendas)
+    return (httpRequest("get",apiUrl,false,{},[],isBeta).Agendas)
 }
 // 是否為Guid形式
 function isGuid(testID) {
@@ -254,8 +257,8 @@ function isGuid(testID) {
     data: request data
     headerSetting: header資料 [{name:'headerName',value:'headerValue'},{name:'headerName2',value:'headerValue2'}]
 */
-function httpRequest(type="get",url,isAsync=false,data={},headerSettings=[]){
-    const apiDomain = "https://capibeta.meetstat.co"
+function httpRequest(type="get",url,isAsync=false,data={},headerSettings=[],isBeta=false){
+    const apiDomain = isBeta?"https://capibeta.meetstat.co":"https://capi.meetstat.co"
     const xhr = new XMLHttpRequest()
     xhr.open(type,apiDomain+url,isAsync)
     xhr.setRequestHeader("Content-type", "application/json;charset=UTF-8")
