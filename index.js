@@ -180,6 +180,22 @@ export class Event {
             }
         })
     }
+    getRegData(){
+        return new Promise((resolve,reject)=>{
+            try{
+                const apiUrl = "/Account/RegData"
+                const headerConfig = [
+                    {
+                        name:"Authorization",
+                        value:"bearer "+this.idToken
+                    }
+                ]
+                resolve(httpRequest("get",apiUrl,false,{},headerConfig))
+            }catch(error){
+                reject(JSON.parse(error.message))
+            }
+        })
+    }
     //取得QR Code&票卷
     getTickets(){
         return new Promise((resolve,reject)=>{
