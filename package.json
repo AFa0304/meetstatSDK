@@ -1,0 +1,22 @@
+{
+  "name": "meetstatsdk",
+  "version": "1.1.0",
+  "description": "for meetstat",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AFa0304/meetstatSDK.git"
+  },
+  "keywords": [
+    "meetstat"
+  ],
+  "author": "afa0304",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AFa0304/meetstatSDK/issues"
+  },
+  "homepage": "https://github.com/AFa0304/meetstatSDK#readme"
+}
