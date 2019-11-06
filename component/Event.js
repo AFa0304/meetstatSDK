@@ -31,7 +31,7 @@ export default class Event {
                         value:"bearer "+this.idToken
                     }
                 ]
-                resolve(httpRequest("get",apiUrl,false,{},headerConfig,this.isBeta).Items)
+                resolve(httpRequest("get",apiUrl,false,{},headerConfig,this.isBeta))
             }catch(error){
                 reject(JSON.parse(error.message))
             }
