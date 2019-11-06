@@ -20,6 +20,23 @@ export default class Event {
             }
         })
     }
+    //查詢中獎物品
+    getDrawItem(){
+        return new Promise((resolve,reject)=>{
+            try{
+                const apiUrl = "/"+this.eventID+"/LuckyDraw/MyDrawItem"
+                const headerConfig = [
+                    {
+                        name:"Authorization",
+                        value:"bearer "+this.idToken
+                    }
+                ]
+                resolve(httpRequest("get",apiUrl,false,{},headerConfig,this.isBeta).Items)
+            }catch(error){
+                reject(JSON.parse(error.message))
+            }
+        })
+    }
     // 取得Agenda (搜尋ID or 字串 => 若找不到或超過一組則throw error)
     getAgenda(searchStr=""){
         return new Promise((resolve,reject)=>{
