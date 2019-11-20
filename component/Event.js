@@ -8,10 +8,10 @@ export default class Event {
         this.agendaList = getAgendaList(eventID, this.isBeta)
         this.questList = getQuestList(eventID, this.isBeta)
         this.luckyDrawList = getLuckyDrawList(eventID, this.isBeta)
-        this.eventData = getEventData(eventID,this.isBeta)
+        this.eventData = getEventData(eventID, this.isBeta)
     }
     //取得註冊表單
-    getRegQuest(){
+    getRegQuest() {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/EventReg"
@@ -22,11 +22,11 @@ export default class Event {
         })
     }
     //送出註冊表單
-    submitRegQuest(data){
+    submitRegQuest(data) {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/EventReg"
-                resolve(httpRequest("post",apiUrl,false,data,[],this.isBeta))
+                resolve(httpRequest("post", apiUrl, false, data, [], this.isBeta))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -144,7 +144,7 @@ export default class Event {
             }
         })
     }
-    getUserRegData() {
+    getUserRegData(email, name) {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Account/GetUserRegData"
@@ -154,7 +154,11 @@ export default class Event {
                         value: "bearer " + this.idToken
                     }
                 ]
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+                const postData = {
+                    "Email": email,
+                    "Name": name
+                }
+                resolve(httpRequest("get", apiUrl, false, postData, headerConfig, this.isBeta))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -211,7 +215,7 @@ function getAgendaList(eventID, isBeta) {
     return (httpRequest("get", apiUrl, false, {}, [], isBeta).Agendas)
 }
 //取得Event資料
-function getEventData(eventID,isBeta){
+function getEventData(eventID, isBeta) {
     const apiUrl = "/Event/" + eventID
     return (httpRequest("get", apiUrl, false, {}, [], isBeta))
 }
