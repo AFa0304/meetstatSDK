@@ -147,7 +147,7 @@ export default class Event {
     getUserRegData(email, name) {
         return new Promise((resolve, reject) => {
             try {
-                const apiUrl = "/Customize/GetUserRegData"
+                const apiUrl = "/" + this.eventID + "/Customize/GetUserRegData"
                 const headerConfig = [
                     {
                         name: "Authorization",
@@ -158,7 +158,7 @@ export default class Event {
                     "Email": email,
                     "Name": name
                 }
-                resolve(httpRequest("get", apiUrl, false, postData, headerConfig, this.isBeta))
+                resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.isBeta))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
