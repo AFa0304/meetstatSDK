@@ -147,7 +147,7 @@ export default class Event {
     getUserRegData(email, name) {
         return new Promise((resolve, reject) => {
             try {
-                const apiUrl = "/Account/GetUserRegData"
+                const apiUrl = "/Customize/GetUserRegData"
                 const headerConfig = [
                     {
                         name: "Authorization",
