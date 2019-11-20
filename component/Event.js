@@ -206,7 +206,7 @@ function getLuckyDrawList(eventID, isBeta) {
 }
 //取得問卷清單
 function getQuestList(eventID, isBeta) {
-    const apiUrl = "/Event/" + eventID + "/GetQuest"
+    const apiUrl = "/" + eventID + "/GetQuest"
     return (httpRequest("get", apiUrl, false, {}, [], isBeta).Items)
 }
 //取得Agenda清單
@@ -216,6 +216,6 @@ function getAgendaList(eventID, isBeta) {
 }
 //取得Event資料
 function getEventData(eventID, isBeta) {
-    const apiUrl = "/Event/" + eventID
+    const apiUrl = "/" + eventID
     return (httpRequest("get", apiUrl, false, {}, [], isBeta))
 }
