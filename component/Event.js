@@ -202,7 +202,7 @@ function getLuckyDrawList(eventID, isBeta) {
 }
 //取得問卷清單
 function getQuestList(eventID, isBeta) {
-    const apiUrl = "/" + eventID + "/GetQuest"
+    const apiUrl = "/Event/" + eventID + "/GetQuest"
     return (httpRequest("get", apiUrl, false, {}, [], isBeta).Items)
 }
 //取得Agenda清單
