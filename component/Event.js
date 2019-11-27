@@ -5,6 +5,7 @@ export default class Event {
         this.isBeta = isBeta
         this.eventID = eventID
         this.idToken = idToken
+        this.speakerList = getSpeakerList(eventID, this.isBeta)
         this.agendaList = getAgendaList(eventID, this.isBeta)
         this.questList = getQuestList(eventID, this.isBeta)
         this.luckyDrawList = getLuckyDrawList(eventID, this.isBeta)
@@ -208,6 +209,11 @@ function getLuckyDrawList(eventID, isBeta) {
 function getQuestList(eventID, isBeta) {
     const apiUrl = "/" + eventID + "/GetQuest"
     return (httpRequest("get", apiUrl, false, {}, [], isBeta).Items)
+}
+//取得Speaker清單
+function getSpeakerList(eventID, isBeta) {
+    const apiUrl = "/" + eventID + "/Agenda/Speaker/List"
+    return (httpRequest("get", apiUrl, false, {}, [], isBeta).Agendas)
 }
 //取得Agenda清單
 function getAgendaList(eventID, isBeta) {
