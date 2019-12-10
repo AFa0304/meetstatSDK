@@ -1,4 +1,4 @@
-import { isGuid, httpRequest } from '../utils/utils'
+import { isGuid, httpRequest, alertError } from '../utils/utils'
 
 export default class Event {
     constructor(eventID = "", idToken = "", isBeta = false) {
@@ -10,6 +10,23 @@ export default class Event {
         this.questList = getQuestList(eventID, this.isBeta)
         this.luckyDrawList = getLuckyDrawList(eventID, this.isBeta)
         this.eventData = getEventData(eventID, this.isBeta)
+    }
+    //取得CheckIn資料
+    getClientCheckIn(){
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/ClientCheckin"
+                const headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+            } catch (error) {
+                reject(JSON.parse(error.message))
+            }
+        })
     }
     //取得註冊表單
     getRegQuest() {
@@ -29,6 +46,7 @@ export default class Event {
                 const apiUrl = "/" + this.eventID + "/EventReg"
                 resolve(httpRequest("post", apiUrl, false, data, [], this.isBeta))
             } catch (error) {
+                alertError(JSON.parse(error.message))
                 reject(JSON.parse(error.message))
             }
         })

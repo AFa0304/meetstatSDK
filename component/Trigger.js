@@ -1,24 +1,25 @@
-import {httpRequest} from '../utils/utils'
+import { httpRequest, alertError } from '../utils/utils'
 
-export default class Trigger{
-    constructor(triggerID="",isBeta=false){
+export default class Trigger {
+    constructor(triggerID = "", isBeta = false) {
         this.triggerID = triggerID
         this.isBeta = isBeta
     }
     //觸發Trigger
-    trigger(){
-        return new Promise((resolve,reject)=>{
-            try{
-                const apiUrl = "/Trigger/"+this.triggerID
-                const tokens = getTriggerToken(this.triggerID,this.isBeta)
+    trigger() {
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/Trigger/" + this.triggerID
+                const tokens = getTriggerToken(this.triggerID, this.isBeta)
                 const headerSetting = [
                     {
-                        name:"RequestToken",
-                        value:tokens.RequestToken
+                        name: "RequestToken",
+                        value: tokens.RequestToken
                     }
                 ]
-                resolve(httpRequest("post",apiUrl,false,{},headerSetting,this.isBeta))
-            }catch(error){
+                resolve(httpRequest("post", apiUrl, false, {}, headerSetting, this.isBeta))
+            } catch (error) {
+                alertError(JSON.parse(error.message))
                 reject(JSON.parse(error.message))
             }
         })
@@ -26,11 +27,11 @@ export default class Trigger{
 }
 
 // 取得Trigger AntiforgeryToken
-function getTriggerToken(triggerID,isBeta){
-    try{
-        const apiUrl = "/Trigger/"+triggerID
-        return (httpRequest("get",apiUrl,false,{},[],isBeta))
-    }catch(error){
+function getTriggerToken(triggerID, isBeta) {
+    try {
+        const apiUrl = "/Trigger/" + triggerID
+        return (httpRequest("get", apiUrl, false, {}, [], isBeta))
+    } catch (error) {
         return (JSON.parse(error.message))
     }
 }

@@ -1,4 +1,4 @@
-import { httpRequest } from '../utils/utils'
+import { httpRequest, alertError } from '../utils/utils'
 
 export default class Quest {
     constructor(questID = "", isBeta = false) {
@@ -23,6 +23,7 @@ export default class Quest {
                 const apiUrl = "/Quest/" + this.questID
                 resolve(httpRequest("post", apiUrl, false, data, [], this.isBeta))
             } catch (error) {
+                alertError(JSON.parse(error.message))
                 reject(JSON.parse(error.message))
             }
         })

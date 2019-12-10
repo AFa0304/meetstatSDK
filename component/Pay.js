@@ -32,7 +32,7 @@ export default class Pay {
     getSuccess() {
         return new Promise((resolve, reject) => {
             try {
-                const apiUrl = "/Pay/Success?InvoiceID=" + this.invoiceID + "&EventUserID=" + this.eventUserID
+                const apiUrl = "/Pay/Success/" + this.invoiceID + "?EventUserID=" + this.eventUserID
                 resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
             } catch (error) {
                 reject(JSON.parse(error.message))
