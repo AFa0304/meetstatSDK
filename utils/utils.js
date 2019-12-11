@@ -1,3 +1,6 @@
+import { resolve } from "dns"
+import { reject } from "q"
+
 // 發送request
 /*
     type: request type
@@ -21,12 +24,36 @@ export function httpRequest(type = "get", url, isAsync = false, data = {}, heade
         return JSON.parse(s)
     } else {
         if (xhr.response) {
-            console.log(JSON.parse(xhr.response))
             throw new Error(xhr.response)
         } else {
             throw new Error(xhr)
         }
     }
+}
+export function httpRequestPromise(type = "get", url, isAsync = false, data = {}, headerSettings = [], isBeta = false) {
+    return new Promise((resolve, reject) => {
+        const apiDomain = isBeta ? "https://capibeta.meetstat.co" : "https://capi.meetstat.co"
+        const xhr = new XMLHttpRequest()
+        xhr.open(type, apiDomain + url, isAsync)
+        xhr.setRequestHeader("Content-type", "application/json;charset=UTF-8")
+        xhr.withCredentials = true
+        headerSettings.map(setting => {
+            xhr.setRequestHeader(setting.name, setting.value)
+        })
+        xhr.send(data && JSON.stringify(data))
+        if (xhr.status === 200 && xhr.readyState === 4) {
+            var s = xhr.responseText;
+            resolve(JSON.parse(s))
+        } else {
+            setTimeout(() => {
+                if (xhr.response) {
+                    reject(xhr.response)
+                } else {
+                    reject(new Error(JSON.stringify(xhr)))
+                }
+            }, 500)
+        }
+    })
 }
 // 是否為Guid形式
 export function isGuid(testID) {

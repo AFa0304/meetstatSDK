@@ -74,3 +74,4 @@ export function setURLParam(key, value) {
     url = url.toString();
     window.history.replaceState({ url: url }, null, url);
 }
+

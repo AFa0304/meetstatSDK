@@ -1,7 +1,8 @@
-import { isGuid, httpRequest, alertError } from '../utils/utils'
+import { isGuid, httpRequest, alertError, httpRequestPromise } from '../utils/utils'
 
 export default class Event {
     constructor(eventID = "", idToken = "", isBeta = false) {
+        this.isSending = false
         this.isBeta = isBeta
         this.eventID = eventID
         this.idToken = idToken
@@ -12,7 +13,7 @@ export default class Event {
         this.eventData = getEventData(eventID, this.isBeta)
     }
     //取得CheckIn資料
-    getClientCheckIn(){
+    getClientCheckIn() {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/ClientCheckin"
@@ -41,14 +42,31 @@ export default class Event {
     }
     //送出註冊表單
     submitRegQuest(data) {
+        if (this.isSending) {
+            return new Promise((resolve) => {
+                resolve("執行中，請勿重複發送")
+            })
+        }
+        this.isSending = true
         return new Promise((resolve, reject) => {
-            try {
-                const apiUrl = "/" + this.eventID + "/EventReg"
-                resolve(httpRequest("post", apiUrl, false, data, [], this.isBeta))
-            } catch (error) {
-                alertError(JSON.parse(error.message))
-                reject(JSON.parse(error.message))
-            }
+            const apiUrl = "/" + this.eventID + "/EventReg"
+            httpRequestPromise("post", apiUrl, false, data, [], this.isBeta).then(response => {
+                resolve(response)
+            }).catch(error => {
+                let jsonErr = null
+                try{
+                    jsonErr = JSON.parse(error)
+                    alertError(jsonErr)
+                    reject(jsonErr)
+                }catch(err){
+                    //錯誤response非Object時
+                    console.log(err)
+                    alert("送出失敗")
+                    reject(error)
+                }
+            }).finally(() => {
+                this.isSending = false
+            })
         })
     }
     //取得獎品清單
