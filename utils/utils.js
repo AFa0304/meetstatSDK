@@ -1,6 +1,3 @@
-import { resolve } from "dns"
-import { reject } from "q"
-
 // 發送request
 /*
     type: request type
