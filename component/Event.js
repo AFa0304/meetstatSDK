@@ -249,7 +249,7 @@ function getQuestList(eventID, isBeta) {
 //取得Speaker清單
 function getSpeakerList(eventID, isBeta) {
     const apiUrl = "/" + eventID + "/Agenda/Speaker/List"
-    return (httpRequest("get", apiUrl, false, {}, [], isBeta).Agendas)
+    return (httpRequest("get", apiUrl, false, {}, [], isBeta).Items)
 }
 //取得Agenda清單
 function getAgendaList(eventID, isBeta) {
