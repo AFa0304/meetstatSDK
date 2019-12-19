@@ -16,7 +16,7 @@ export default class Event {
     getSuccess(eventUserID, invoiceID) {
         return new Promise((resolve, reject) => {
             try {
-                const apiUrl = "/" + this.eventID + "/EventReg/" + eventUserID + "?InvoiceID=" + invoiceID
+                const apiUrl = "/" + this.eventID + "/EventReg/" + eventUserID + (invoiceID ? "?InvoiceID=" + invoiceID : "")
                 resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
             } catch (error) {
                 reject(JSON.parse(error.message))
