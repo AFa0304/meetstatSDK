@@ -12,6 +12,17 @@ export default class Event {
         this.luckyDrawList = getLuckyDrawList(eventID, this.isBeta)
         this.eventData = getEventData(eventID, this.isBeta)
     }
+    //註冊取得付款頁資訊
+    getSuccess(eventUserID, invoiceID) {
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/" + this.eventID + "/EventReg/" + eventUserID + "?InvoiceID=" + invoiceID
+                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
+            } catch (error) {
+                reject(JSON.parse(error.message))
+            }
+        })
+    }
     //取得CheckIn資料
     getClientCheckIn() {
         return new Promise((resolve, reject) => {
@@ -54,11 +65,11 @@ export default class Event {
                 resolve(response)
             }).catch(error => {
                 let jsonErr = null
-                try{
+                try {
                     jsonErr = JSON.parse(error)
                     alertError(jsonErr)
                     reject(jsonErr)
-                }catch(err){
+                } catch (err) {
                     //錯誤response非Object時
                     console.log(err)
                     alert("送出失敗")

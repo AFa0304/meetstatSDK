@@ -28,15 +28,4 @@ export default class Pay {
             }
         })
     }
-    //註冊取得付款頁資訊
-    getSuccess() {
-        return new Promise((resolve, reject) => {
-            try {
-                const apiUrl = "/Pay/Success/" + this.invoiceID + "?EventUserID=" + this.eventUserID
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
-            } catch (error) {
-                reject(JSON.parse(error.message))
-            }
-        })
-    }
 }
