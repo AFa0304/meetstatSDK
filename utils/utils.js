@@ -52,6 +52,26 @@ export function httpRequestPromise(type = "get", url, isAsync = false, data = {}
         }
     })
 }
+export function getFetchData(type = "get", url, headerSettings = [], isBeta = false) {
+    let header = {
+        "Content-type": "application/json;charset=UTF-8"
+    }
+    const apiDomain = (isBeta ? "https://capibeta.meetstat.co" : "https://capi.meetstat.co") + url
+    headerSettings.map(setting => {
+        header[setting.name] = setting.value
+    })
+    return fetch(apiDomain, {
+        method: type,
+        // body: data && JSON.stringify(data),
+        mode:"cors",
+        credentials:"omit"
+    }).then(response => {
+        return response.json()
+    }).catch(error=>{
+        console.log(error)
+    })
+}
+
 // 是否為Guid形式
 export function isGuid(testID) {
     var reg = new RegExp(/^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$/);

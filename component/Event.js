@@ -1,4 +1,4 @@
-import { isGuid, httpRequest, alertError, httpRequestPromise } from '../utils/utils'
+import { isGuid, httpRequest, alertError, httpRequestPromise, getFetchData } from '../utils/utils'
 
 export default class Event {
     constructor(eventID = "", idToken = "", isBeta = false) {
@@ -6,11 +6,29 @@ export default class Event {
         this.isBeta = isBeta
         this.eventID = eventID
         this.idToken = idToken
-        this.speakerList = getSpeakerList(eventID, this.isBeta)
-        this.agendaList = getAgendaList(eventID, this.isBeta)
-        this.questList = getQuestList(eventID, this.isBeta)
-        this.luckyDrawList = getLuckyDrawList(eventID, this.isBeta)
-        this.eventData = getEventData(eventID, this.isBeta)
+        this.speakerList = []
+        this.agendaList = []
+        this.questList = []
+        this.luckyDrawList = []
+        this.eventData = {}
+    }
+    async init() {
+        const isBeta = this.isBeta
+        const eventID = this.eventID
+        const taskList = [
+            getSpeakerList(eventID, isBeta),
+            getAgendaList(eventID, isBeta),
+            getQuestList(eventID, isBeta),
+            getLuckyDrawList(eventID, isBeta),
+            getEventData(eventID, isBeta)
+        ]
+        await Promise.all(taskList).then(response => {
+            this.speakerList = response[0].Items
+            this.agendaList = response[1].Agendas
+            this.questList = response[2].Items
+            this.luckyDrawList = response[3].Items
+            this.eventData = response[4]
+        })
     }
     //註冊取得付款頁資訊
     getSuccess(eventUserID, invoiceID) {
@@ -250,25 +268,26 @@ export default class Event {
 //取得獎項清單
 function getLuckyDrawList(eventID, isBeta) {
     const apiUrl = "/" + eventID + "/LuckyDraw"
-    return (httpRequest("get", apiUrl, false, {}, [], isBeta).Items)
+    return getFetchData("get", apiUrl, [], isBeta)
 }
 //取得問卷清單
 function getQuestList(eventID, isBeta) {
     const apiUrl = "/" + eventID + "/GetQuest"
-    return (httpRequest("get", apiUrl, false, {}, [], isBeta).Items)
+    return getFetchData("get", apiUrl, [], isBeta)
 }
 //取得Speaker清單
 function getSpeakerList(eventID, isBeta) {
     const apiUrl = "/" + eventID + "/Agenda/Speaker/List"
-    return (httpRequest("get", apiUrl, false, {}, [], isBeta).Items)
+    return getFetchData("get", apiUrl, [], isBeta)
 }
 //取得Agenda清單
 function getAgendaList(eventID, isBeta) {
     const apiUrl = "/" + eventID + "/Agenda"
-    return (httpRequest("get", apiUrl, false, {}, [], isBeta).Agendas)
+    return getFetchData("get", apiUrl, [], isBeta)
 }
 //取得Event資料
 function getEventData(eventID, isBeta) {
     const apiUrl = "/" + eventID
-    return (httpRequest("get", apiUrl, false, {}, [], isBeta))
+    return getFetchData("get", apiUrl, [], isBeta)
 }
+
