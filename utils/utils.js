@@ -66,8 +66,10 @@ export function getFetchData(type = "get", url, headerSettings = [], isBeta = fa
         mode:"cors",
         credentials:"omit"
     }).then(response => {
-        return response.json()
-    }).then(()=>{})
+        return response
+    }).then((res)=>{
+        return res.json()
+    })
 }
 
 // 是否為Guid形式
