@@ -28,6 +28,8 @@ export default class Event {
             this.questList = response[2].Items
             this.luckyDrawList = response[3].Items
             this.eventData = response[4]
+        }).catch(error=>{
+            throw new Error(JSON.stringify({Message:error.toString()}))
         })
     }
     //註冊取得付款頁資訊

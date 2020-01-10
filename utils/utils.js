@@ -67,9 +67,7 @@ export function getFetchData(type = "get", url, headerSettings = [], isBeta = fa
         credentials:"omit"
     }).then(response => {
         return response.json()
-    }).catch(error=>{
-        console.log(error)
-    })
+    }).then(()=>{})
 }
 
 // 是否為Guid形式
