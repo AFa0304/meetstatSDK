@@ -38,7 +38,7 @@ export default class Quest {
         })
     }
     //Email重複檢查
-    ckeckEmail(email) {
+    checkEmail(email) {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Quest/" + this.questID + "/CheckEmail"
