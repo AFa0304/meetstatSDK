@@ -212,10 +212,10 @@ export default class Event {
             }
         })
     }
-    getUserRegData(email, name) {
+    getUserRegDataEmailName(email, name) {
         return new Promise((resolve, reject) => {
             try {
-                const apiUrl = "/" + this.eventID + "/Customize/GetUserRegData"
+                const apiUrl = "/" + this.eventID + "/Customize/UserRegData_EmailName"
                 const headerConfig = [
                     {
                         name: "Authorization",
@@ -224,6 +224,26 @@ export default class Event {
                 ]
                 const postData = {
                     "Email": email,
+                    "Name": name
+                }
+                resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.isBeta))
+            } catch (error) {
+                reject(JSON.parse(error.message))
+            }
+        })
+    }
+    getUserRegDataNameMobile(mobile, name) {
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/" + this.eventID + "/Customize/UserRegData_NameMobile"
+                const headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                const postData = {
+                    "Mobile": mobile,
                     "Name": name
                 }
                 resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.isBeta))
