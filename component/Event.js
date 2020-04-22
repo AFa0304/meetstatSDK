@@ -28,8 +28,8 @@ export default class Event {
             this.questList = response[2].Items
             this.luckyDrawList = response[3].Items
             this.eventData = response[4]
-        }).catch(error=>{
-            throw new Error(JSON.stringify({Message:error.toString()}))
+        }).catch(error => {
+            throw new Error(JSON.stringify({ Message: error.toString() }))
         })
     }
     //註冊取得付款頁資訊
@@ -280,6 +280,43 @@ export default class Event {
                     }
                 ]
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+            } catch (error) {
+                reject(JSON.parse(error.message))
+            }
+        })
+    }
+    //取得Mosaic預覽圖
+    getMosaicFullImage(mosaicID) {
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/Mosaic/" + mosaicID + "/GetClientFullImage"
+                const headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+            } catch (error) {
+                reject(JSON.parse(error.message))
+            }
+        })
+    }
+    //上傳Mosaic預覽圖
+    uploadMosaicTile(mosaicID, base64) {
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/Mosaic/" + mosaicID + "/UploadTileImage_FullImage"
+                const headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                const postData = {
+                    "ImageBase64": base64
+                }
+                resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.isBeta))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
