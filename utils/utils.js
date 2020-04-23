@@ -18,7 +18,11 @@ export function httpRequest(type = "get", url, isAsync = false, data = {}, heade
     xhr.send(data && JSON.stringify(data))
     if (xhr.status === 200 && xhr.readyState === 4) {
         var s = xhr.responseText;
-        return JSON.parse(s)
+        if (s) {
+            return JSON.parse(s)
+        } else {
+            return ""
+        }
     } else {
         if (xhr.response) {
             throw new Error(xhr.response)
@@ -40,7 +44,11 @@ export function httpRequestPromise(type = "get", url, isAsync = false, data = {}
         xhr.send(data && JSON.stringify(data))
         if (xhr.status === 200 && xhr.readyState === 4) {
             var s = xhr.responseText;
-            resolve(JSON.parse(s))
+            if (s) {
+                resolve(JSON.parse(s))
+            } else {
+                resolve("")
+            }
         } else {
             setTimeout(() => {
                 if (xhr.response) {
@@ -63,11 +71,11 @@ export function getFetchData(type = "get", url, headerSettings = [], isBeta = fa
     return fetch(apiDomain, {
         method: type,
         // body: data && JSON.stringify(data),
-        mode:"cors",
-        credentials:"omit"
+        mode: "cors",
+        credentials: "omit"
     }).then(response => {
         return response
-    }).then((res)=>{
+    }).then((res) => {
         return res.json()
     })
 }
