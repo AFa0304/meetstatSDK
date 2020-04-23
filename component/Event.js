@@ -289,7 +289,7 @@ export default class Event {
     getMosaicFullImage(mosaicID) {
         return new Promise((resolve, reject) => {
             try {
-                const apiUrl = "/Mosaic/" + mosaicID + "/GetClientFullImage"
+                const apiUrl = "/" + this.eventID + "/Mosaic/" + mosaicID + "/GetClientFullImage"
                 const headerConfig = [
                     {
                         name: "Authorization",
@@ -306,7 +306,7 @@ export default class Event {
     uploadMosaicTile(mosaicID, base64) {
         return new Promise((resolve, reject) => {
             try {
-                const apiUrl = "/Mosaic/" + mosaicID + "/UploadTileImage_FullImage"
+                const apiUrl = "/" + this.eventID + "/Mosaic/" + mosaicID + "/UploadTileImage_FullImage"
                 const headerConfig = [
                     {
                         name: "Authorization",
