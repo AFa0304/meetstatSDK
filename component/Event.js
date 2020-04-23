@@ -304,22 +304,31 @@ export default class Event {
     }
     //上傳Mosaic預覽圖
     uploadMosaicTile(mosaicID, base64) {
+        if (this.isSending) {
+            return new Promise((resolve) => {
+                resolve("執行中，請勿重複發送")
+            })
+        }
+        this.isSending = true
         return new Promise((resolve, reject) => {
-            try {
-                const apiUrl = "/" + this.eventID + "/Mosaic/" + mosaicID + "/UploadTileImage_FullImage"
-                const headerConfig = [
-                    {
-                        name: "Authorization",
-                        value: "bearer " + this.idToken
-                    }
-                ]
-                const postData = {
-                    "ImageBase64": base64
+            const apiUrl = "/" + this.eventID + "/Mosaic/" + mosaicID + "/UploadTileImage_FullImage"
+            const headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
                 }
-                resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.isBeta))
-            } catch (error) {
-                reject(JSON.parse(error.message))
+            ]
+            const postData = {
+                "ImageBase64": base64
             }
+            httpRequestPromise("post", apiUrl, false, postData, headerConfig, this.isBeta).then(response => {
+                resolve(response)
+            }).catch(error=>{
+                alertError(JSON.parse(error))
+                reject(JSON.parse(error))
+            }).finally(()=>{
+                this.isSending = false
+            })
         })
     }
 }
