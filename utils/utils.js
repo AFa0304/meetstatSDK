@@ -24,10 +24,14 @@ export function httpRequest(type = "get", url, isAsync = false, data = {}, heade
             return ""
         }
     } else {
-        if (xhr.response) {
+        if (xhr.response && xhr.response.length) {
             throw new Error(xhr.response)
         } else {
-            throw new Error(xhr)
+            const error = {
+                code: xhr.status,
+                message: "發生錯誤"
+            }
+            throw new Error(JSON.stringify(error))
         }
     }
 }
@@ -51,10 +55,14 @@ export function httpRequestPromise(type = "get", url, isAsync = false, data = {}
             }
         } else {
             setTimeout(() => {
-                if (xhr.response) {
+                if (xhr.response && xhr.response.length) {
                     reject(xhr.response)
                 } else {
-                    reject(new Error(JSON.stringify(xhr)))
+                    const error = {
+                        code: xhr.status,
+                        message: "發生錯誤"
+                    }
+                    reject(new Error(JSON.stringify(error)))
                 }
             }, 500)
         }
