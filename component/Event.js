@@ -195,6 +195,23 @@ export default class Event {
             }
         })
     }
+    //登入會議室
+    meetLogin() {
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/Account/MeetLogin"
+                const headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                resolve(httpRequest("post", apiUrl, false, data, headerConfig, this.isBeta))
+            } catch (error) {
+                reject(JSON.parse(error.message))
+            }
+        })
+    }
     //取得Firebase帳戶資料
     getAccountInfo() {
         return new Promise((resolve, reject) => {
@@ -273,6 +290,23 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Ticket"
+                const headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+            } catch (error) {
+                reject(JSON.parse(error.message))
+            }
+        })
+    }
+    //取得會議室連結
+    getMeet() {
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/Meet"
                 const headerConfig = [
                     {
                         name: "Authorization",
