@@ -75,3 +75,17 @@ export function setURLParam(key, value) {
     window.history.replaceState({ url: url }, null, url);
 }
 
+// File轉換Base64
+export function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            resolve(reader.result)
+        };
+        reader.onerror = function (error) {
+            reject(error)
+            console.log("檔案轉Base64錯誤!", error);
+        }
+    })
+}

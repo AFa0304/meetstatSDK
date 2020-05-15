@@ -2,7 +2,6 @@ import { isGuid, httpRequest, alertError, httpRequestPromise, getFetchData } fro
 
 export default class Event {
     constructor(eventID = "", idToken = "", isBeta = false) {
-        this.isSending = false
         this.isBeta = isBeta
         this.eventID = eventID
         this.idToken = idToken
@@ -73,15 +72,9 @@ export default class Event {
     }
     //送出註冊表單
     submitRegQuest(data) {
-        if (this.isSending) {
-            return new Promise((resolve) => {
-                resolve("執行中，請勿重複發送")
-            })
-        }
-        this.isSending = true
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/EventReg"
-            httpRequestPromise("post", apiUrl, false, data, [], this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, data, [], this.isBeta).then(response => {
                 resolve(response)
             }).catch(error => {
                 let jsonErr = null
@@ -95,8 +88,6 @@ export default class Event {
                     alert("送出失敗")
                     reject(error)
                 }
-            }).finally(() => {
-                this.isSending = false
             })
         })
     }
@@ -178,38 +169,40 @@ export default class Event {
     //登入活動
     eventLogin() {
         return new Promise((resolve, reject) => {
-            try {
-                const apiUrl = "/Account/EventLogin"
-                const data = {
-                    "EventID": this.eventID
+            const apiUrl = "/Account/EventLogin"
+            const headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
                 }
-                const headerConfig = [
-                    {
-                        name: "Authorization",
-                        value: "bearer " + this.idToken
-                    }
-                ]
-                resolve(httpRequest("post", apiUrl, false, data, headerConfig, this.isBeta))
-            } catch (error) {
-                reject(JSON.parse(error.message))
+            ]
+            const postData = {
+                "EventID": this.eventID
             }
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
+                resolve(response)
+            }).catch(error => {
+                alertError(JSON.parse(error))
+                reject(JSON.parse(error))
+            })
         })
     }
     //登入會議室
     meetLogin() {
         return new Promise((resolve, reject) => {
-            try {
-                const apiUrl = "/Account/MeetLogin"
-                const headerConfig = [
-                    {
-                        name: "Authorization",
-                        value: "bearer " + this.idToken
-                    }
-                ]
-                resolve(httpRequest("post", apiUrl, false, data, headerConfig, this.isBeta))
-            } catch (error) {
-                reject(JSON.parse(error.message))
-            }
+            const apiUrl = "/Account/MeetLogin"
+            const headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
+                }
+            ]
+            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.isBeta).then(response => {
+                resolve(response)
+            }).catch(error => {
+                alertError(JSON.parse(error))
+                reject(JSON.parse(error))
+            })
         })
     }
     //取得Firebase帳戶資料
@@ -338,12 +331,6 @@ export default class Event {
     }
     //上傳Mosaic預覽圖
     uploadMosaicTile(mosaicID, base64) {
-        if (this.isSending) {
-            return new Promise((resolve) => {
-                resolve("執行中，請勿重複發送")
-            })
-        }
-        this.isSending = true
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/Mosaic/" + mosaicID + "/UploadTileImage_FullImage"
             const headerConfig = [
@@ -355,13 +342,11 @@ export default class Event {
             const postData = {
                 "ImageBase64": base64
             }
-            httpRequestPromise("post", apiUrl, false, postData, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
                 resolve(response)
-            }).catch(error=>{
+            }).catch(error => {
                 alertError(JSON.parse(error))
                 reject(JSON.parse(error))
-            }).finally(()=>{
-                this.isSending = false
             })
         })
     }

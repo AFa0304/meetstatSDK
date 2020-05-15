@@ -27,12 +27,12 @@ export default class Quest {
         this.isSending = true
         return new Promise((resolve, reject) => {
             const apiUrl = "/Quest/" + this.questID
-            httpRequestPromise("post", apiUrl, false, data, [], this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, data, [], this.isBeta).then(response => {
                 resolve(response)
-            }).catch(error=>{
+            }).catch(error => {
                 alertError(JSON.parse(error))
                 reject(JSON.parse(error))
-            }).finally(()=>{
+            }).finally(() => {
                 this.isSending = false
             })
         })
@@ -53,17 +53,26 @@ export default class Quest {
     }
     //資料重複檢查
     checkQuestionUnion(name, value) {
+        if (this.isSending) {
+            return new Promise((resolve) => {
+                resolve("執行中，請勿重複發送")
+            })
+        }
+        const postData = {
+            "Name": name,
+            "Value": value
+        }
+        this.isSending = true
         return new Promise((resolve, reject) => {
-            try {
-                const apiUrl = "/Quest/" + this.questID + "/CheckQuestionUnion"
-                const postData = {
-                    "Name": name,
-                    "Value": value
-                }
-                resolve(httpRequest("post", apiUrl, false, postData, [], this.isBeta))
-            } catch (error) {
-                reject(JSON.parse(error.message))
-            }
+            const apiUrl = "/Quest/" + this.questID + "/CheckQuestionUnion"
+            httpRequestPromise("post", apiUrl, true, postData, [], this.isBeta).then(response => {
+                resolve(response)
+            }).catch(error => {
+                alertError(JSON.parse(error))
+                reject(JSON.parse(error))
+            }).finally(() => {
+                this.isSending = false
+            })
         })
     }
 }

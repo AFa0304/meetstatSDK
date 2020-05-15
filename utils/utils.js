@@ -16,22 +16,24 @@ export function httpRequest(type = "get", url, isAsync = false, data = {}, heade
         xhr.setRequestHeader(setting.name, setting.value)
     })
     xhr.send(data && JSON.stringify(data))
-    if (xhr.status === 200 && xhr.readyState === 4) {
-        var s = xhr.responseText;
-        if (s) {
-            return JSON.parse(s)
-        } else {
-            return ""
-        }
-    } else {
-        if (xhr.response && xhr.response.length) {
-            throw new Error(xhr.response)
-        } else {
-            const error = {
-                code: xhr.status,
-                message: "發生錯誤"
+    if (xhr.readyState === XMLHttpRequest.DONE) {
+        if (xhr.status === 200 && xhr.readyState === 4) {
+            var s = xhr.responseText;
+            if (s) {
+                return JSON.parse(s)
+            } else {
+                return ""
             }
-            throw new Error(JSON.stringify(error))
+        } else {
+            if (xhr.response && xhr.response.length) {
+                throw new Error(xhr.response)
+            } else {
+                const error = {
+                    code: xhr.status,
+                    message: "發生錯誤"
+                }
+                throw new Error(JSON.stringify(error))
+            }
         }
     }
 }
@@ -46,25 +48,31 @@ export function httpRequestPromise(type = "get", url, isAsync = false, data = {}
             xhr.setRequestHeader(setting.name, setting.value)
         })
         xhr.send(data && JSON.stringify(data))
-        if (xhr.status === 200 && xhr.readyState === 4) {
-            var s = xhr.responseText;
-            if (s) {
-                resolve(JSON.parse(s))
-            } else {
-                resolve("")
-            }
-        } else {
-            setTimeout(() => {
-                if (xhr.response && xhr.response.length) {
-                    reject(xhr.response)
-                } else {
-                    const error = {
-                        code: xhr.status,
-                        message: "發生錯誤"
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200 && xhr.readyState === 4) {
+                    var s = xhr.responseText;
+                    if (s) {
+                        resolve(JSON.parse(s))
+                    } else {
+                        resolve("")
                     }
-                    reject(new Error(JSON.stringify(error)))
+                } else {
+                    setTimeout(() => {
+                        if (xhr.response && xhr.response.length) {
+                            console.log(xhr.response)
+                            reject(xhr.response)
+                        } else {
+                            const error = {
+                                code: xhr.status,
+                                message: "發生錯誤"
+                            }
+                            console.log(JSON.stringify(error))
+                            reject(new Error(JSON.stringify(error)))
+                        }
+                    }, 500)
                 }
-            }, 500)
+            }
         }
     })
 }
