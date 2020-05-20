@@ -4,7 +4,6 @@ export default class Quest {
     constructor(questID = "", isBeta = false) {
         this.questID = questID
         this.isBeta = isBeta
-        this.isSending = false
     }
     //取得問卷
     getQuest() {
@@ -18,22 +17,19 @@ export default class Quest {
         })
     }
     //送出問卷
-    submitQuest(data) {
-        if (this.isSending) {
-            return new Promise((resolve) => {
-                resolve("執行中，請勿重複發送")
-            })
-        }
-        this.isSending = true
+    submitQuest(answer, fileArray) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Quest/" + this.questID
-            httpRequestPromise("post", apiUrl, true, data, [], this.isBeta).then(response => {
+            const postData = new FormData()
+            postData.append("AnsJSON ", answer)
+            for (var i = 0; i < fileArray.length; i++) {
+                postData.append("Files", fileArray[i])
+            }
+            httpRequestPromise("post", apiUrl, true, postData, [], this.isBeta, true).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
                 reject(JSON.parse(error))
-            }).finally(() => {
-                this.isSending = false
             })
         })
     }
@@ -53,16 +49,10 @@ export default class Quest {
     }
     //資料重複檢查
     checkQuestionUnion(name, value) {
-        if (this.isSending) {
-            return new Promise((resolve) => {
-                resolve("執行中，請勿重複發送")
-            })
-        }
         const postData = {
             "Name": name,
             "Value": value
         }
-        this.isSending = true
         return new Promise((resolve, reject) => {
             const apiUrl = "/Quest/" + this.questID + "/CheckQuestionUnion"
             httpRequestPromise("post", apiUrl, true, postData, [], this.isBeta).then(response => {
@@ -70,8 +60,23 @@ export default class Quest {
             }).catch(error => {
                 alertError(JSON.parse(error))
                 reject(JSON.parse(error))
-            }).finally(() => {
-                this.isSending = false
+            })
+        })
+    }
+    //送出Quest投稿問卷答案
+    submitQuestReview(answers, fileArray = []) {
+        const postData = new FormData()
+        postData.append("AnsJSON", JSON.stringify(answers))
+        for (var i = 0; i < fileArray.length; i++) {
+            postData.append("Files", fileArray[i])
+        }
+        return new Promise((resolve, reject) => {
+            const apiUrl = "/Quest/" + this.questID + "/PostAnswer"
+            httpRequestPromise("post", apiUrl, true, postData, [], this.isBeta, true).then(response => {
+                resolve(response)
+            }).catch(error => {
+                alertError(JSON.parse(error))
+                reject(JSON.parse(error))
             })
         })
     }

@@ -37,17 +37,27 @@ export function httpRequest(type = "get", url, isAsync = false, data = {}, heade
         }
     }
 }
-export function httpRequestPromise(type = "get", url, isAsync = false, data = {}, headerSettings = [], isBeta = false) {
+
+export function httpRequestPromise(type = "get", url, isAsync = false, data = {}, headerSettings = [], isBeta = false, isFormData = false) {
     return new Promise((resolve, reject) => {
         const apiDomain = isBeta ? "https://capibeta.meetstat.co" : "https://capi.meetstat.co"
         const xhr = new XMLHttpRequest()
         xhr.open(type, apiDomain + url, isAsync)
-        xhr.setRequestHeader("Content-type", "application/json;charset=UTF-8")
+        if (isFormData) {
+            // xhr.setRequestHeader("Content-type", "multipart/form-data")
+            xhr.setRequestHeader("processData", "false")
+        } else {
+            xhr.setRequestHeader("Content-type", "application/json;charset=UTF-8")
+        }
         xhr.withCredentials = true
         headerSettings.map(setting => {
             xhr.setRequestHeader(setting.name, setting.value)
         })
-        xhr.send(data && JSON.stringify(data))
+        if (isFormData) {
+            xhr.send(data)
+        } else {
+            xhr.send(data && JSON.stringify(data))
+        }
         xhr.onreadystatechange = function () {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status === 200 && xhr.readyState === 4) {
