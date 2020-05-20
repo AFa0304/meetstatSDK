@@ -71,11 +71,11 @@ export default class Event {
         })
     }
     //送出註冊表單
-    submitRegQuest(answer, fileArray) {
+    submitRegQuest(answer, fileArray=[]) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/EventReg"
             const postData = new FormData()
-            postData.append("AnsJSON ", JSON.stringify(answer))
+            postData.append("AnsJSON", JSON.stringify(answer))
             for (var i = 0; i < fileArray.length; i++) {
                 postData.append("Files", fileArray[i])
             }

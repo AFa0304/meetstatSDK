@@ -21,7 +21,7 @@ export default class Quest {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Quest/" + this.questID
             const postData = new FormData()
-            postData.append("AnsJSON ", JSON.stringify(answer))
+            postData.append("AnsJSON", JSON.stringify(answer))
             for (var i = 0; i < fileArray.length; i++) {
                 postData.append("Files", fileArray[i])
             }
