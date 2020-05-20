@@ -71,7 +71,7 @@ export default class Event {
         })
     }
     //送出註冊表單
-    submitRegQuest(answer, fileArray=[]) {
+    submitRegQuest(answer, fileArray = []) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/EventReg"
             const postData = new FormData()
@@ -347,6 +347,46 @@ export default class Event {
             const postData = {
                 "ImageBase64": base64
             }
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
+                resolve(response)
+            }).catch(error => {
+                alertError(JSON.parse(error))
+                reject(JSON.parse(error))
+            })
+        })
+    }
+    //取得投票
+    getVote() {
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/" + this.eventID + "/Vote"
+                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
+            } catch (error) {
+                reject(JSON.parse(error.message))
+            }
+        })
+    }
+    //取得投票選項
+    getVoteOptions(voteID) {
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/" + this.eventID + "/Vote/" + voteID
+                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
+            } catch (error) {
+                reject(JSON.parse(error.message))
+            }
+        })
+    }
+    //投票
+    voteIt(voteID, optionID) {
+        return new Promise((resolve, reject) => {
+            const apiUrl = "/" + this.eventID + "/Vote/" + voteID + "/VoteIt?OptionID=" + optionID
+            const headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
+                }
+            ]
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
                 resolve(response)
             }).catch(error => {
