@@ -75,7 +75,7 @@ export default class Event {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/EventReg"
             const postData = new FormData()
-            postData.append("AnsJSON ", answer)
+            postData.append("AnsJSON ", JSON.stringify(answer))
             for (var i = 0; i < fileArray.length; i++) {
                 postData.append("Files", fileArray[i])
             }

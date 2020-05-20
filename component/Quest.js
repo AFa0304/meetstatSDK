@@ -17,11 +17,11 @@ export default class Quest {
         })
     }
     //送出問卷
-    submitQuest(answer, fileArray) {
+    submitQuest(answer, fileArray=[]) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Quest/" + this.questID
             const postData = new FormData()
-            postData.append("AnsJSON ", answer)
+            postData.append("AnsJSON ", JSON.stringify(answer))
             for (var i = 0; i < fileArray.length; i++) {
                 postData.append("Files", fileArray[i])
             }
