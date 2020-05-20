@@ -17,7 +17,7 @@ export default class Quest {
         })
     }
     //送出問卷
-    submitQuest(answer, fileArray=[]) {
+    submitQuest(answer, fileArray = []) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Quest/" + this.questID
             const postData = new FormData()
@@ -63,7 +63,18 @@ export default class Quest {
             })
         })
     }
-    //送出Quest投稿問卷答案
+    //取得投稿問卷答案
+    getQuestReviewDetail() {
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/Quest/" + this.questID + "/GetAnswerDetail"
+                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
+            } catch (error) {
+                reject(JSON.parse(error.message))
+            }
+        })
+    }
+    //送出投稿問卷答案
     submitQuestReview(answers, fileArray = []) {
         const postData = new FormData()
         postData.append("AnsJSON", JSON.stringify(answers))
