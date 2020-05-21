@@ -77,8 +77,7 @@ export function httpRequestPromise(type = "get", url, isAsync = false, data = {}
                                 code: xhr.status,
                                 message: "發生錯誤"
                             }
-                            console.log(JSON.stringify(error))
-                            reject(new Error(JSON.stringify(error)))
+                            reject(JSON.stringify(error))
                         }
                     }, 500)
                 }

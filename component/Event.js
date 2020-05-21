@@ -187,13 +187,14 @@ export default class Event {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
                 resolve(response)
             }).catch(error => {
+                console.log(error)
                 alertError(JSON.parse(error))
                 reject(JSON.parse(error))
             })
         })
     }
     //登入會議室
-    meetLogin() {
+    meetLogin(alertError = true) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Account/MeetLogin"
             const headerConfig = [
@@ -205,7 +206,9 @@ export default class Event {
             httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.isBeta).then(response => {
                 resolve(response)
             }).catch(error => {
-                alertError(JSON.parse(error))
+                if (alertError) {
+                    alertError(JSON.parse(error))
+                }
                 reject(JSON.parse(error))
             })
         })
@@ -390,6 +393,7 @@ export default class Event {
             httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.isBeta).then(response => {
                 resolve(response)
             }).catch(error => {
+                console.log(error)
                 alertError(JSON.parse(error))
                 reject(JSON.parse(error))
             })
