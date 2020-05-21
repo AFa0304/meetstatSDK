@@ -400,6 +400,29 @@ export default class Event {
             })
         })
     }
+    //Firebase註冊
+    newUser(name, mobile) {
+        return new Promise((resolve, reject) => {
+            const apiUrl = "/Register/NewUser"
+            const headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
+                }
+            ]
+            const postData = {
+                EventID: this.eventID,
+                Name: name,
+                Mobile: mobile
+            }
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
+                resolve(response)
+            }).catch(error => {
+                alertError(JSON.parse(error))
+                reject(JSON.parse(error))
+            })
+        })
+    }
 }
 
 //取得獎項清單
