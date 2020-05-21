@@ -387,7 +387,7 @@ export default class Event {
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.isBeta).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
