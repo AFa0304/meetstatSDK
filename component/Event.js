@@ -172,7 +172,7 @@ export default class Event {
         }
     }
     //登入活動
-    eventLogin() {
+    eventLogin(alertError = true) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Account/EventLogin"
             const headerConfig = [
@@ -187,8 +187,9 @@ export default class Event {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
                 resolve(response)
             }).catch(error => {
-                console.log(error)
-                alertError(JSON.parse(error))
+                if (alertError) {
+                    alertError(JSON.parse(error))
+                }
                 reject(JSON.parse(error))
             })
         })
