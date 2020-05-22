@@ -69,7 +69,13 @@ export default class Quest {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Quest/" + this.questID + "/GetAnswerDetail"
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
+                const headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
