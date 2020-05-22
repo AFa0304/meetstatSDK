@@ -1,9 +1,10 @@
 import { httpRequest, alertError, httpRequestPromise } from '../utils/utils'
 
 export default class Quest {
-    constructor(questID = "", isBeta = false) {
+    constructor(questID = "", idToken = "", isBeta = false) {
         this.questID = questID
         this.isBeta = isBeta
+        this.idToken = idToken
     }
     //取得問卷
     getQuest() {
@@ -83,7 +84,13 @@ export default class Quest {
         }
         return new Promise((resolve, reject) => {
             const apiUrl = "/Quest/" + this.questID + "/PostAnswer"
-            httpRequestPromise("post", apiUrl, true, postData, [], this.isBeta, true).then(response => {
+            const headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
+                }
+            ]
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta, true).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
