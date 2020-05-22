@@ -26,7 +26,13 @@ export default class Quest {
             for (var i = 0; i < fileArray.length; i++) {
                 postData.append("Files", fileArray[i])
             }
-            httpRequestPromise("post", apiUrl, true, postData, [], this.isBeta, true).then(response => {
+            const headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
+                }
+            ]
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta, true).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))

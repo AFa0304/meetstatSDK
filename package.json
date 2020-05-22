@@ -1,6 +1,6 @@
 {
   "name": "meetstatsdk",
-  "version": "1.9.61",
+  "version": "1.9.62",
   "description": "for meetstat",
   "main": "index.js",
   "scripts": {
