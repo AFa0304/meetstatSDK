@@ -89,3 +89,16 @@ export function fileToBase64(file) {
         }
     })
 }
+// 偵測網址並return HTML DOM <a></a>
+export function setUrlToDOM(str) {
+    let result = "" + str
+    const URLs = result.match(/\bhttps?:\/\/\S+/gi);
+    if (URLs) {
+      for (var i = 0; i < URLs.length; i++) {
+        if (result.indexOf("href=\"" + URLs[i]) === -1) {
+          result = result.replace(URLs[i], "<a target='_blank' href='" + URLs[i] + "'>" + URLs[i] + "</a>")
+        }
+      }
+    }
+    return result
+  }
