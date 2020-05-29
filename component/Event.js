@@ -447,6 +447,22 @@ export default class Event {
             })
         })
     }
+    getEditData() {
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/Account/Edit"
+                const headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+            } catch (error) {
+                reject(JSON.parse(error.message))
+            }
+        })
+    }
 }
 
 //取得獎項清單
