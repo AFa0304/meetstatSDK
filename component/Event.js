@@ -438,7 +438,7 @@ export default class Event {
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta, true).then(response => {
                 resolve(response)
             }).catch(error => {
                 console.log(error)
