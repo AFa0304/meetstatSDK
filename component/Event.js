@@ -441,9 +441,17 @@ export default class Event {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta, true).then(response => {
                 resolve(response)
             }).catch(error => {
-                console.log(error)
-                alertError(JSON.parse(error))
-                reject(JSON.parse(error))
+                let jsonErr = null
+                try {
+                    jsonErr = JSON.parse(error)
+                    alertError(jsonErr)
+                    reject(jsonErr)
+                } catch (err) {
+                    //錯誤response非Object時
+                    console.log(err)
+                    alert("送出失敗")
+                    reject(error)
+                }
             })
         })
     }
