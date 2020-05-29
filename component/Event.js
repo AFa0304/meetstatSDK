@@ -426,7 +426,7 @@ export default class Event {
     //修改註冊資料
     editAccount(answer, fileArray = []) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/Account/Edit/Edit"
+            const apiUrl = "/Account/Edit"
             const postData = new FormData()
             postData.append("AnsJSON", JSON.stringify(answer))
             for (var i = 0; i < fileArray.length; i++) {
