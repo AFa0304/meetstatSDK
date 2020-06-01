@@ -1,33 +1,70 @@
 import { httpRequest, alertError, httpRequestPromise } from '../utils/utils'
+import { HubConnectionBuilder } from '../../@aspnet/signalr'
+import * as firebase from '../../firebase'
 
 export default class ChatRoom {
-    constructor(eventID, token, isBeta = false) {
+    constructor(eventID, idToken, displaySysMsg = true, callback_receiveMsg = undefined, callback_receiveTopMsg = undefined, isBeta = false) {
         this.eventID = eventID
-        this.token = token
-        this.newToken = ""
+        this.idToken = idToken
+        this.chatRoomID = ""
+        this.userID = ""
+        this.isCustomer = false
         this.isBeta = isBeta
+        this.displaySysMsg = displaySysMsg // 是否顯示系統訊息
+        this.callback_ReceiveMessage = callback_receiveMsg // 接收訊息CallBack function(response,logs) 若有logs 回傳完整log
+        this.callback_ReceiveTopMessage = callback_receiveTopMsg // 接收置頂訊息CallBack
+        this.apiDomain = isBeta ? "https://capibeta.meetstat.co" : "https://capi.meetstat.co"
     }
-    async init() {
-        const thisComponent = this
-        const eventID = this.eventID
-        const isBeta = this.isBeta
-        this.eventLogin().then(function (loginData) {
-            thisComponent.token = loginData.EventAccessToken
-            thisComponent.getChatRoom().then(function (chatRoomDatas) {
-                console.log(chatRoomDatas)
+    init() {
+        return new Promise((resolve, reject) => {
+            const chatRoom = this
+            this.eventLogin().then(function (loginData) {
+                firebase.auth().signInWithCustomToken(loginData.EventAccessToken).then(function () {
+                    firebase.auth().currentUser.getIdToken().then(function (newIdToken) {
+                        chatRoom.idToken = newIdToken
+                        chatRoom.getChatRoom().then(function (response) {
+                            chatRoom.chatRoomID = response.ChatRoomID
+                            chatRoom.userID = response.UserID
+                            chatRoom.isCustomer = response.isCustomer
+                            chatRoom.checkChatRoomExpelled().then(function () {
+                                chatRoom.connection = new HubConnectionBuilder().withUrl(chatRoom.apiDomain + "/chatHub?ChatRoomID=" + chatRoom.chatRoomID + "&UserID=" + chatRoom.userID + "&isCustomer=" + chatRoom.isCustomer).build()
+                                chatRoom.connection.start().then(function () {
+                                    if (chatRoom.callback_ReceiveTopMessage) { //初始化置頂貼文
+                                        chatRoom.callback_ReceiveTopMessage(setUrlToDOM(response.TopMessage))
+                                    } else {
+                                        console.warn("【注意】聊天室未定義『接收置頂訊息』之函式")
+                                    }
+                                    resolve(true)
+                                })
+                                // 全頻道訊息傳送訊息事件
+                                chatRoom.connection.on("ReceiveMessage", function (response) {
+                                    const msgData = {
+                                        user: response.user,
+                                        message: setUrlToDOM(response.message)
+                                    }
+                                    if (chatRoom.callback_ReceiveMessage && (chatRoom.displaySysMsg || (!chatRoom.displaySysMsg && (response.message.indexOf('進入聊天室') === -1 && response.message.indexOf('離開聊天室') === -1)))) {
+                                        chatRoom.callback_ReceiveMessage(msgData)
+                                    } else if (!chatRoom.callback_ReceiveMessage) {
+                                        console.warn("【注意】聊天室未定義『接收訊息』之函式")
+                                    }
+                                })
+                                // 置頂
+                                chatRoom.connection.on("ReceiveTopMessage", function (response) {
+                                    if (chatRoom.callback_ReceiveTopMessage) {
+                                        chatRoom.callback_ReceiveTopMessage(setUrlToDOM(response.topMessage))
+                                    } else {
+                                        console.warn("【注意】聊天室未定義『接收置頂訊息』之函式")
+                                    }
+                                })
+                            }).catch(function (error) {
+                                console.log(error)
+                                alert("您沒有權限加入聊天室")
+                            })
+                        })
+                    })
+                })
             })
         })
-        // const taskList = [
-        // ]
-        // await Promise.all(taskList).then(response => {
-        //     this.speakerList = response[0].Items
-        //     this.agendaList = response[1].Agendas
-        //     this.questList = response[2].Items
-        //     this.luckyDrawList = response[3].Items
-        //     this.eventData = response[4]
-        // }).catch(error => {
-        //     throw new Error(JSON.stringify({ Message: error.toString() }))
-        // })
     }
     //取得聊天室狀態
     getChatRoom() {
@@ -47,9 +84,9 @@ export default class ChatRoom {
         })
     }
     //檢查聊天室權限
-    checkChatRoomExpelled(chatroomID, userID, isCustomer) {
+    checkChatRoomExpelled() {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/ChatRoom/CheckIsExpelled/" + chatroomID + "?UserID=" + userID + "&isCustomer=" + isCustomer
+            const apiUrl = "/" + this.eventID + "/ChatRoom/CheckIsExpelled/" + this.chatRoomID + "?UserID=" + this.userID + "&isCustomer=" + this.isCustomer
             const headerConfig = [
                 {
                     name: "Authorization",
@@ -59,17 +96,17 @@ export default class ChatRoom {
             httpRequestPromise("get", apiUrl, true, {}, headerConfig, this.isBeta).then(response => {
                 resolve(response)
             }).catch(error => {
-                alertError(JSON.parse(error))
+                // alertError(JSON.parse(error))
                 reject(JSON.parse(error))
             }).finally(() => {
                 this.isSending = false
             })
         })
     }
-    //加入聊天室
-    joinChatRoom(chatroomID, userID, isCustomer) {
+    //傳送訊息
+    sendMessage(message) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/ChatRoom/JoinChatRoom/" + chatroomID + "?UserID=" + userID + "&isCustomer=" + isCustomer
+            const apiUrl = "/" + this.eventID + "/ChatRoom/SendMessage/" + this.chatRoomID + "?UserID=" + this.userID + "&isCustomer=" + this.isCustomer + "&Message=" + message
             const headerConfig = [
                 {
                     name: "Authorization",
@@ -86,10 +123,53 @@ export default class ChatRoom {
             })
         })
     }
-    //傳送訊息
-    sendMessage(chatroomID, userID, isCustomer, message) {
+    //寫入置頂訊息
+    postTopMessage(topMessage) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/ChatRoom/JoinChatRoom/" + chatroomID + "?UserID=" + userID + "&isCustomer=" + isCustomer + "&Message=" + message
+            const apiUrl = "/" + this.eventID + "/ChatRoom/PostTopMessage/" + this.chatRoomID
+            const headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
+                }
+            ]
+            const postData = {
+                TopMessage: topMessage
+            }
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
+                resolve(response)
+            }).catch(error => {
+                alertError(JSON.parse(error))
+                reject(JSON.parse(error))
+            }).finally(() => {
+                this.isSending = false
+            })
+        })
+    }
+    //加入聊天室
+    joinChatRoom() {
+        return new Promise((resolve, reject) => {
+            const apiUrl = "/" + this.eventID + "/ChatRoom/JoinChatRoom/" + this.chatRoomID + "?UserID=" + this.userID + "&isCustomer=" + this.isCustomer
+            const headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
+                }
+            ]
+            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.isBeta).then(response => {
+                resolve(response)
+            }).catch(error => {
+                alertError(JSON.parse(error))
+                reject(JSON.parse(error))
+            }).finally(() => {
+                this.isSending = false
+            })
+        })
+    }
+    //離開聊天室
+    exitChatRoom() {
+        return new Promise((resolve, reject) => {
+            const apiUrl = "/" + this.eventID + "/ChatRoom/ExitChatRoom/" + this.chatRoomID + "?UserID=" + this.userID + "&isCustomer=" + this.isCustomer
             const headerConfig = [
                 {
                     name: "Authorization",
@@ -127,4 +207,18 @@ export default class ChatRoom {
             })
         })
     }
+}
+
+// 偵測網址並return HTML DOM <a></a>
+function setUrlToDOM(str) {
+    let result = "" + str
+    const URLs = result.match(/\bhttps?:\/\/\S+/gi);
+    if (URLs) {
+        for (var i = 0; i < URLs.length; i++) {
+            if (result.indexOf("href=\"" + URLs[i]) === -1) {
+                result = result.replace(URLs[i], "<a target='_blank' href='" + URLs[i] + "'>" + URLs[i] + "</a>")
+            }
+        }
+    }
+    return result
 }
