@@ -58,7 +58,7 @@ export default class ChatRoom {
                                     }
                                 })
                                 // 聊天室人數
-                                this.connection.on("UserCount", (response => {
+                                chatRoom.connection.on("UserCount", (response => {
                                     if(chatRoom.callback_userCount){
                                         chatRoom.callback_userCount(response.onlineCount, response.totalCount)
                                     }
