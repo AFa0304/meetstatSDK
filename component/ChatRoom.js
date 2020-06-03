@@ -51,7 +51,7 @@ export default class ChatRoom {
                                 })
                                 // 置頂
                                 chatRoom.connection.on("ReceiveTopMessage", function (response) {
-                                    if (chatRoom.callback_ReceiveTopMessage && response.topMessage) {
+                                    if (chatRoom.callback_ReceiveTopMessage) {
                                         chatRoom.callback_ReceiveTopMessage(setUrlToDOM(response.topMessage))
                                     } else if(!chatRoom.callback_ReceiveTopMessage) {
                                         console.warn("【注意】聊天室未定義『接收置頂訊息』之函式")
