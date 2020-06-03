@@ -13,6 +13,7 @@ export default class ChatRoom {
         this.displaySysMsg = displaySysMsg // 是否顯示系統訊息
         this.callback_ReceiveMessage = callback_receiveMsg // 接收訊息CallBack function(response,logs) 若有logs 回傳完整log
         this.callback_ReceiveTopMessage = callback_receiveTopMsg // 接收置頂訊息CallBack
+        this.callback_userCount = undefined
         this.apiDomain = isBeta ? "https://capibeta.meetstat.co" : "https://capi.meetstat.co"
     }
     init() {
@@ -29,9 +30,9 @@ export default class ChatRoom {
                             chatRoom.checkChatRoomExpelled().then(function () {
                                 chatRoom.connection = new HubConnectionBuilder().withUrl(chatRoom.apiDomain + "/chatHub?ChatRoomID=" + chatRoom.chatRoomID + "&UserID=" + chatRoom.userID + "&isCustomer=" + chatRoom.isCustomer).build()
                                 chatRoom.connection.start().then(function () {
-                                    if (chatRoom.callback_ReceiveTopMessage) { //初始化置頂貼文
+                                    if (chatRoom.callback_ReceiveTopMessage && response.TopMessage) { //初始化置頂貼文
                                         chatRoom.callback_ReceiveTopMessage(setUrlToDOM(response.TopMessage))
-                                    } else {
+                                    } else if(!chatRoom.callback_ReceiveTopMessage){
                                         console.warn("【注意】聊天室未定義『接收置頂訊息』之函式")
                                     }
                                     resolve(true)
@@ -50,12 +51,18 @@ export default class ChatRoom {
                                 })
                                 // 置頂
                                 chatRoom.connection.on("ReceiveTopMessage", function (response) {
-                                    if (chatRoom.callback_ReceiveTopMessage) {
+                                    if (chatRoom.callback_ReceiveTopMessage && response.TopMessage) {
                                         chatRoom.callback_ReceiveTopMessage(setUrlToDOM(response.topMessage))
-                                    } else {
+                                    } else if(!chatRoom.callback_ReceiveTopMessage) {
                                         console.warn("【注意】聊天室未定義『接收置頂訊息』之函式")
                                     }
                                 })
+                                // 聊天室人數
+                                this.connection.on("UserCount", (response => {
+                                    if(chatRoom.callback_userCount){
+                                        chatRoom.callback_userCount(response.onlineCount, response.totalCount)
+                                    }
+                                }))
                             }).catch(function (error) {
                                 console.log(error)
                                 alert("您沒有權限加入聊天室")
