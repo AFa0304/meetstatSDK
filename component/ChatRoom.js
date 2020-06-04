@@ -83,6 +83,25 @@ export default class ChatRoom {
             })
         })
     }
+    postChatRoomPopup = (data) => {
+        return new Promise((resolve, reject) => {
+            const apiUrl = "/" + this.eventID + "/ChatRoom/PostChatRoomPopup/" + this.chatRoomID
+            const headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
+                }
+            ]
+            httpRequestPromise("post", apiUrl, true, data, headerConfig, this.isBeta).then(response => {
+                resolve(response)
+            }).catch(error => {
+                alertError(JSON.parse(error))
+                reject(JSON.parse(error))
+            }).finally(() => {
+                this.isSending = false
+            })
+        })
+    }
     //取得聊天室狀態
     getChatRoom() {
         return new Promise((resolve, reject) => {
