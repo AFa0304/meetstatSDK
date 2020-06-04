@@ -83,7 +83,7 @@ export default class ChatRoom {
             })
         })
     }
-    postChatRoomPopup = (data) => {
+    postChatRoomPopup(data) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/ChatRoom/PostChatRoomPopup/" + this.chatRoomID
             const headerConfig = [
