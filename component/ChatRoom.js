@@ -14,6 +14,7 @@ export default class ChatRoom {
         this.callback_ReceiveMessage = callback_receiveMsg // 接收訊息CallBack function(response,logs) 若有logs 回傳完整log
         this.callback_ReceiveTopMessage = callback_receiveTopMsg // 接收置頂訊息CallBack
         this.callback_userCount = undefined
+        this.callback_popup = undefined
         this.apiDomain = isBeta ? "https://capibeta.meetstat.co" : "https://capi.meetstat.co"
     }
     init() {
@@ -32,10 +33,19 @@ export default class ChatRoom {
                                 chatRoom.connection.start().then(function () {
                                     if (chatRoom.callback_ReceiveTopMessage && response.TopMessage) { //初始化置頂貼文
                                         chatRoom.callback_ReceiveTopMessage(setUrlToDOM(response.TopMessage))
-                                    } else if(!chatRoom.callback_ReceiveTopMessage){
+                                    } else if (!chatRoom.callback_ReceiveTopMessage) {
                                         console.warn("【注意】聊天室未定義『接收置頂訊息』之函式")
                                     }
                                     resolve(true)
+                                })
+                                // 彈跳視窗
+                                chatRoom.connection.on("ReceiveChatRoomPopup", function (response) {
+                                    console.log("彈跳視窗", response)
+                                    if (chatRoom.callback_popup) {
+                                        chatRoom.callback_popup(response)
+                                    } else if (!chatRoom.callback_popup) {
+                                        console.warn("【注意】聊天室未定義『接收彈跳視窗』之函式")
+                                    }
                                 })
                                 // 全頻道訊息傳送訊息事件
                                 chatRoom.connection.on("ReceiveMessage", function (response) {
@@ -53,13 +63,13 @@ export default class ChatRoom {
                                 chatRoom.connection.on("ReceiveTopMessage", function (response) {
                                     if (chatRoom.callback_ReceiveTopMessage) {
                                         chatRoom.callback_ReceiveTopMessage(setUrlToDOM(response.topMessage))
-                                    } else if(!chatRoom.callback_ReceiveTopMessage) {
+                                    } else if (!chatRoom.callback_ReceiveTopMessage) {
                                         console.warn("【注意】聊天室未定義『接收置頂訊息』之函式")
                                     }
                                 })
                                 // 聊天室人數
                                 chatRoom.connection.on("UserCount", (response => {
-                                    if(chatRoom.callback_userCount){
+                                    if (chatRoom.callback_userCount) {
                                         chatRoom.callback_userCount(response.onlineCount, response.totalCount)
                                     }
                                 }))
