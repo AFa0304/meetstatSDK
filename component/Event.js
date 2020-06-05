@@ -46,7 +46,13 @@ export default class Event {
     clientCheckIn(agendaID, checkInType) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/ClientCheckin/CheckIn?AgendaID=" + agendaID + "&CheckInType=" + checkInType
-            httpRequestPromise("post", apiUrl, true, {}, [], this.isBeta).then(response => {
+            const headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
+                }
+            ]
+            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.isBeta).then(response => {
                 resolve(response)
             }).catch(error => {
                 let jsonErr = null
