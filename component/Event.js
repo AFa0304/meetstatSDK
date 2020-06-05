@@ -42,6 +42,27 @@ export default class Event {
             }
         })
     }
+    //Client CheckIn
+    clientCheckIn(agendaID, checkInType) {
+        return new Promise((resolve, reject) => {
+            const apiUrl = "/ClientCheckin/CheckIn?AgendaID=" + agendaID + "&CheckInType=" + checkInType
+            httpRequestPromise("post", apiUrl, true, postData, [], this.isBeta).then(response => {
+                resolve(response)
+            }).catch(error => {
+                let jsonErr = null
+                try {
+                    jsonErr = JSON.parse(error)
+                    alertError(jsonErr)
+                    reject(jsonErr)
+                } catch (err) {
+                    //錯誤response非Object時
+                    console.log(err)
+                    alert("送出失敗")
+                    reject(error)
+                }
+            })
+        })
+    }
     //取得CheckIn資料
     getClientCheckIn() {
         return new Promise((resolve, reject) => {
