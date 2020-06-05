@@ -36,6 +36,11 @@ export default class ChatRoom {
                                     } else if (!chatRoom.callback_ReceiveTopMessage) {
                                         console.warn("【注意】聊天室未定義『接收置頂訊息』之函式")
                                     }
+                                    if(chatRoom.callback_popup && response.Popup){
+                                        chatRoom.callback_popup(response.Popup)
+                                    }else if(!chatRoom.callback_popup){
+                                        console.warn("【注意】聊天室未定義『接收彈跳視窗』之函式")
+                                    }
                                     resolve(true)
                                 })
                                 // 彈跳視窗
