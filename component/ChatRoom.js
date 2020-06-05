@@ -55,10 +55,10 @@ export default class ChatRoom {
                                 // 全頻道訊息傳送訊息事件
                                 chatRoom.connection.on("ReceiveMessage", function (response) {
                                     const msgData = {
-                                        user: response.user,
-                                        message: setUrlToDOM(response.message)
+                                        user: response.User,
+                                        message: setUrlToDOM(response.Message)
                                     }
-                                    if (chatRoom.callback_ReceiveMessage && (chatRoom.displaySysMsg || (!chatRoom.displaySysMsg && (response.message.indexOf('進入聊天室') === -1 && response.message.indexOf('離開聊天室') === -1)))) {
+                                    if (chatRoom.callback_ReceiveMessage && (chatRoom.displaySysMsg || (!chatRoom.displaySysMsg && (response.Message.indexOf('進入聊天室') === -1 && response.Message.indexOf('離開聊天室') === -1)))) {
                                         chatRoom.callback_ReceiveMessage(msgData)
                                     } else if (!chatRoom.callback_ReceiveMessage) {
                                         console.warn("【注意】聊天室未定義『接收訊息』之函式")
@@ -67,7 +67,7 @@ export default class ChatRoom {
                                 // 置頂
                                 chatRoom.connection.on("ReceiveTopMessage", function (response) {
                                     if (chatRoom.callback_ReceiveTopMessage) {
-                                        chatRoom.callback_ReceiveTopMessage(setUrlToDOM(response.topMessage))
+                                        chatRoom.callback_ReceiveTopMessage(setUrlToDOM(response.TopMessage))
                                     } else if (!chatRoom.callback_ReceiveTopMessage) {
                                         console.warn("【注意】聊天室未定義『接收置頂訊息』之函式")
                                     }
@@ -75,7 +75,7 @@ export default class ChatRoom {
                                 // 聊天室人數
                                 chatRoom.connection.on("UserCount", (response => {
                                     if (chatRoom.callback_userCount) {
-                                        chatRoom.callback_userCount(response.onlineCount, response.totalCount)
+                                        chatRoom.callback_userCount(response.OnlineCount, response.TotalCount)
                                     }
                                 }))
                             }).catch(function (error) {
