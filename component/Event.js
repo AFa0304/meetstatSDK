@@ -45,7 +45,10 @@ export default class Event {
     //Client CheckIn
     clientCheckIn(agendaID, checkInType) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/ClientCheckin/CheckIn?AgendaID=" + agendaID + "&CheckInType=" + checkInType
+            let apiUrl = "/ClientCheckin/CheckIn" + "?CheckInType=" + checkInType
+            if (agendaID) {
+                apiUrl += "&AgendaID=" + agendaID
+            }
             const headerConfig = [
                 {
                     name: "Authorization",
