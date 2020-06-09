@@ -1,14 +1,10 @@
 {
   "name": "meetstatsdk",
-  "version": "2.0.82",
+  "version": "2.0.83",
   "description": "for meetstat",
   "main": "index.js",
   "scripts": {
     "test": "make test"
-  },
-  "dependencies": {
-    "@aspnet/signalr": "^1.1.4",
-    "firebase":"^5.10.0"
   },
   "repository": {
     "type": "git",
