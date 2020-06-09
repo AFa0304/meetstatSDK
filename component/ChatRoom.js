@@ -36,9 +36,9 @@ export default class ChatRoom {
                                     } else if (!chatRoom.callback_ReceiveTopMessage) {
                                         console.warn("【注意】聊天室未定義『接收置頂訊息』之函式")
                                     }
-                                    if(chatRoom.callback_popup && response.Popup){
+                                    if (chatRoom.callback_popup && response.Popup) {
                                         chatRoom.callback_popup(response.Popup)
-                                    }else if(!chatRoom.callback_popup){
+                                    } else if (!chatRoom.callback_popup) {
                                         console.warn("【注意】聊天室未定義『接收彈跳視窗』之函式")
                                     }
                                     resolve(true)
@@ -56,7 +56,9 @@ export default class ChatRoom {
                                 chatRoom.connection.on("ReceiveMessage", function (response) {
                                     const msgData = {
                                         user: response.User,
-                                        message: setUrlToDOM(response.Message)
+                                        message: setUrlToDOM(response.Message),
+                                        time: response.Time,
+                                        role: response.Role
                                     }
                                     if (chatRoom.callback_ReceiveMessage && (chatRoom.displaySysMsg || (!chatRoom.displaySysMsg && (response.Message.indexOf('進入聊天室') === -1 && response.Message.indexOf('離開聊天室') === -1)))) {
                                         chatRoom.callback_ReceiveMessage(msgData)
