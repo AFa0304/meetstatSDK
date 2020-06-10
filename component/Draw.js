@@ -13,7 +13,13 @@ export default class Draw {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Draw/" + this.drawID + "/GraffitiWall?EventID=" + this.eventID
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
+                const headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -23,7 +29,13 @@ export default class Draw {
     drawTextToPng(datas) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Draw/" + this.eventID + "/EventReg"
-            httpRequestPromise("post", apiUrl, true, datas, [], this.isBeta).then(response => {
+            const headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
+                }
+            ]
+            httpRequestPromise("post", apiUrl, true, datas, headerConfig, this.isBeta).then(response => {
                 resolve(response)
             }).catch(error => {
                 let jsonErr = null
