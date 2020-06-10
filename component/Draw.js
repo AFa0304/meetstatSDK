@@ -28,7 +28,7 @@ export default class Draw {
     //繪圖
     drawTextToPng(datas) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/Draw/" + this.eventID + "/DrawTextToPng"
+            const apiUrl = "/Draw/" + this.drawID + "/DrawTextToPng"
             const headerConfig = [
                 {
                     name: "Authorization",
