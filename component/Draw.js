@@ -12,7 +12,7 @@ export default class Draw {
     getGraffitiWall() {
         return new Promise((resolve, reject) => {
             try {
-                const apiUrl = "/" + this.drawID + "/GraffitiWall?EventID=" + this.eventID
+                const apiUrl = "/Draw/" + this.drawID + "/GraffitiWall?EventID=" + this.eventID
                 resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
             } catch (error) {
                 reject(JSON.parse(error.message))
@@ -22,7 +22,7 @@ export default class Draw {
     //繪圖
     drawTextToPng(datas) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/EventReg"
+            const apiUrl = "/Draw/" + this.eventID + "/EventReg"
             httpRequestPromise("post", apiUrl, true, datas, [], this.isBeta).then(response => {
                 resolve(response)
             }).catch(error => {
