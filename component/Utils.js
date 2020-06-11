@@ -89,6 +89,7 @@ export function fileToBase64(file) {
         }
     })
 }
+
 // 偵測網址並return HTML DOM <a></a>
 export function setUrlToDOM(str) {
     let result = "" + str
@@ -102,3 +103,4 @@ export function setUrlToDOM(str) {
     }
     return result
   }
+

@@ -1,6 +1,6 @@
 import { httpRequest, alertError, httpRequestPromise } from '../utils/utils'
-import { HubConnectionBuilder } from '../../@aspnet/signalr'
-import * as firebase from '../../firebase'
+// import { HubConnectionBuilder } from '../../@aspnet/signalr'
+// import * as firebase from '../../firebase'
 
 export default class ChatRoom {
     constructor(eventID, idToken, displaySysMsg = true, callback_receiveMsg = undefined, callback_receiveTopMsg = undefined, isBeta = false) {
@@ -20,6 +20,8 @@ export default class ChatRoom {
     init() {
         return new Promise((resolve, reject) => {
             const chatRoom = this
+            const HubConnectionBuilder = require('../../@aspnet/signalr').HubConnectionBuilder
+            const firebase = require("../../firebase")
             this.eventLogin().then(function (loginData) {
                 firebase.auth().signInWithCustomToken(loginData.EventAccessToken).then(function () {
                     firebase.auth().currentUser.getIdToken().then(function (newIdToken) {
