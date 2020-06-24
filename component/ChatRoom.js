@@ -15,6 +15,7 @@ export default class ChatRoom {
         this.callback_ReceiveTopMessage = callback_receiveTopMsg // 接收置頂訊息CallBack
         this.callback_userCount = undefined
         this.callback_popup = undefined
+        this.callback_popupLiveQuest = undefined
         this.apiDomain = isBeta ? "https://capibeta.meetstat.co" : "https://capi.meetstat.co"
     }
     init() {
@@ -38,15 +39,20 @@ export default class ChatRoom {
                                     } else if (!chatRoom.callback_ReceiveTopMessage) {
                                         console.warn("【注意】聊天室未定義『接收置頂訊息』之函式")
                                     }
-                                    if (chatRoom.callback_popup && response.Popup) {
-                                        chatRoom.callback_popup(response.Popup)
+                                    if (chatRoom.callback_popup && response.PopupAgenda) {
+                                        chatRoom.callback_popup(response.PopupAgenda)
                                     } else if (!chatRoom.callback_popup) {
                                         console.warn("【注意】聊天室未定義『接收彈跳視窗』之函式")
+                                    }
+                                    if (chatRoom.callback_popupLiveQuest && response.PopupLiveQuest) {
+                                        chatRoom.callback_popupLiveQuest(response.PopupLiveQuest)
+                                    } else if (!chatRoom.callback_popupLiveQuest) {
+                                        console.warn("【注意】聊天室未定義『接收即時問卷』之函式")
                                     }
                                     resolve(true)
                                 })
                                 // 彈跳視窗
-                                chatRoom.connection.on("ReceiveChatRoomPopup", function (response) {
+                                chatRoom.connection.on("ReceivePopupAgenda", function (response) {
                                     console.log("彈跳視窗", response)
                                     if (chatRoom.callback_popup) {
                                         chatRoom.callback_popup(response)
@@ -66,6 +72,14 @@ export default class ChatRoom {
                                         chatRoom.callback_ReceiveMessage(msgData)
                                     } else if (!chatRoom.callback_ReceiveMessage) {
                                         console.warn("【注意】聊天室未定義『接收訊息』之函式")
+                                    }
+                                })
+                                // 接收即時問卷
+                                chatRoom.connection.on("ReceivePopupLiveQuest", function (response) {
+                                    if (chatRoom.callback_popupLiveQuest) {
+                                        chatRoom.callback_popupLiveQuest(response)
+                                    } else if (!chatRoom.callback_popupLiveQuest) {
+                                        console.warn("【注意】聊天室未定義『接收即時問卷』之函式")
                                     }
                                 })
                                 // 置頂
