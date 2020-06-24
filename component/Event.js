@@ -101,7 +101,7 @@ export default class Event {
         })
     }
     //送出註冊表單
-    submitRegQuest(answer, fileArray = []) {
+    submitRegQuest(answer, fileArray = [], isAlertError = true) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/EventReg"
             const postData = new FormData()
@@ -115,12 +115,12 @@ export default class Event {
                 let jsonErr = null
                 try {
                     jsonErr = JSON.parse(error)
-                    alertError(jsonErr)
+                    if (isAlertError) { alertError(jsonErr) }
                     reject(jsonErr)
                 } catch (err) {
                     //錯誤response非Object時
                     console.log(err)
-                    alert("送出失敗")
+                    if (isAlertError) { alert("送出失敗") }
                     reject(error)
                 }
             })
