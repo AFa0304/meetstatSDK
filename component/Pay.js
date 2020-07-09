@@ -1,17 +1,17 @@
 import { httpRequest } from '../utils/utils'
 
 export default class Pay {
-    constructor(invoiceID = "", eventUserID = "", isBeta = false) {
+    constructor(invoiceID = "", eventUserID = "", DomainType = 0) {
         this.invoiceID = invoiceID
         this.eventUserID = eventUserID
-        this.isBeta = isBeta
+        this.DomainType = DomainType
     }
     //註冊取得付款頁資訊
     getReg() {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Pay/Reg?InvoiceID=" + this.invoiceID + "&EventUserID=" + this.eventUserID
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -22,7 +22,7 @@ export default class Pay {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Pay/GoPay?InvoiceID=" + this.invoiceID + "&EventUserID=" + this.eventUserID
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }

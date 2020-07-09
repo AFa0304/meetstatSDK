@@ -1,9 +1,9 @@
 import { httpRequest, alertError, httpRequestPromise } from '../utils/utils'
 
 export default class Quest {
-    constructor(questID = "", idToken = "", isBeta = false) {
+    constructor(questID = "", idToken = "", DomainType = 0) {
         this.questID = questID
-        this.isBeta = isBeta
+        this.DomainType = DomainType
         this.idToken = idToken
     }
     //取得問卷
@@ -11,7 +11,7 @@ export default class Quest {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Quest/" + this.questID
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -32,7 +32,7 @@ export default class Quest {
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta, true).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
@@ -48,7 +48,7 @@ export default class Quest {
                 const postData = {
                     "Email": email
                 }
-                resolve(httpRequest("post", apiUrl, false, postData, [], this.isBeta))
+                resolve(httpRequest("post", apiUrl, false, postData, [], this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -62,7 +62,7 @@ export default class Quest {
         }
         return new Promise((resolve, reject) => {
             const apiUrl = "/Quest/" + this.questID + "/CheckQuestionUnion"
-            httpRequestPromise("post", apiUrl, true, postData, [], this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, [], this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
@@ -81,7 +81,7 @@ export default class Quest {
                         value: "bearer " + this.idToken
                     }
                 ]
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -102,7 +102,7 @@ export default class Quest {
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta, true).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))

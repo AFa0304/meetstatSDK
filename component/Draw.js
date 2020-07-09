@@ -2,8 +2,8 @@ import { alertError, httpRequestPromise, httpRequest } from '../utils/utils'
 
 
 export default class Draw {
-    constructor(eventID = "", drawID = "", idToken = "", isBeta = false) {
-        this.isBeta = isBeta
+    constructor(eventID = "", drawID = "", idToken = "", DomainType = 0) {
+        this.DomainType = DomainType
         this.eventID = eventID
         this.drawID = drawID
         this.idToken = idToken
@@ -19,7 +19,7 @@ export default class Draw {
                         value: "bearer " + this.idToken
                     }
                 ]
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -35,7 +35,7 @@ export default class Draw {
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("post", apiUrl, true, datas, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, datas, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 let jsonErr = null

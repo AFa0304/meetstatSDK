@@ -1,8 +1,8 @@
 import { isGuid, httpRequest, alertError, httpRequestPromise, getFetchData } from '../utils/utils'
 
 export default class Event {
-    constructor(eventID = "", idToken = "", isBeta = false) {
-        this.isBeta = isBeta
+    constructor(eventID = "", idToken = "", DomainType = 0) {
+        this.DomainType = DomainType
         this.eventID = eventID
         this.idToken = idToken
         this.speakerList = []
@@ -12,14 +12,14 @@ export default class Event {
         this.eventData = {}
     }
     async init() {
-        const isBeta = this.isBeta
+        const DomainType = this.DomainType
         const eventID = this.eventID
         const taskList = [
-            getSpeakerList(eventID, isBeta),
-            getAgendaList(eventID, isBeta),
-            getQuestList(eventID, isBeta),
-            getLuckyDrawList(eventID, isBeta),
-            getEventData(eventID, isBeta)
+            getSpeakerList(eventID, DomainType),
+            getAgendaList(eventID, DomainType),
+            getQuestList(eventID, DomainType),
+            getLuckyDrawList(eventID, DomainType),
+            getEventData(eventID, DomainType)
         ]
         await Promise.all(taskList).then(response => {
             this.speakerList = response[0].Items
@@ -36,7 +36,7 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/EventReg/" + eventUserID + (invoiceID ? "?InvoiceID=" + invoiceID : "")
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -55,7 +55,7 @@ export default class Event {
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 let jsonErr = null
@@ -83,7 +83,7 @@ export default class Event {
                         value: "bearer " + this.idToken
                     }
                 ]
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -94,7 +94,7 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/EventReg"
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -109,7 +109,7 @@ export default class Event {
             for (var i = 0; i < fileArray.length; i++) {
                 postData.append("Files", fileArray[i])
             }
-            httpRequestPromise("post", apiUrl, true, postData, [], this.isBeta, true).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, [], this.DomainType, true).then(response => {
                 resolve(response)
             }).catch(error => {
                 let jsonErr = null
@@ -131,7 +131,7 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/LuckyDraw"
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta).Items)
+                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType).Items)
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -148,7 +148,7 @@ export default class Event {
                         value: "bearer " + this.idToken
                     }
                 ]
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -175,7 +175,7 @@ export default class Event {
 
                 resultAry.length === 1 ? agendaID = resultAry[0].ID : resultAry.length > 1 ? reject(new Error("查到多組包含'" + searchStr + "'的Agenda")) : reject(new Error("查無包含'" + searchStr + "'的Agenda"))
             }
-            resolve(httpRequest("get", "/" + this.eventID + "/Agenda/" + agendaID, false, {}, [], this.isBeta))
+            resolve(httpRequest("get", "/" + this.eventID + "/Agenda/" + agendaID, false, {}, [], this.DomainType))
         })
     }
     // 取得Speaker資料
@@ -183,7 +183,7 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/Agenda/Speaker/" + speakerID
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -196,7 +196,7 @@ export default class Event {
             "FrontSiteURL": window.location.href
         }
         try {
-            httpRequest("post", apiUrl, false, data, [], this.isBeta)
+            httpRequest("post", apiUrl, false, data, [], this.DomainType)
         } catch (error) {
             console.log(error)
         }
@@ -214,7 +214,7 @@ export default class Event {
             const postData = {
                 "EventID": this.eventID
             }
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 if (isAlertError) {
@@ -234,7 +234,7 @@ export default class Event {
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 if (isAlertError) {
@@ -255,7 +255,7 @@ export default class Event {
                         value: "bearer " + this.idToken
                     }
                 ]
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -275,7 +275,7 @@ export default class Event {
                     "Email": email,
                     "Name": name
                 }
-                resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.isBeta))
+                resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -295,7 +295,7 @@ export default class Event {
                     "Mobile": mobile,
                     "Name": name
                 }
-                resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.isBeta))
+                resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -311,7 +311,7 @@ export default class Event {
                         value: "bearer " + this.idToken
                     }
                 ]
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -328,7 +328,7 @@ export default class Event {
                         value: "bearer " + this.idToken
                     }
                 ]
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -345,7 +345,7 @@ export default class Event {
                         value: "bearer " + this.idToken
                     }
                 ]
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -362,7 +362,7 @@ export default class Event {
                         value: "bearer " + this.idToken
                     }
                 ]
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -381,7 +381,7 @@ export default class Event {
             const postData = {
                 "ImageBase64": base64
             }
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
@@ -394,7 +394,7 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/Vote"
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -405,7 +405,7 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/Vote/" + voteID
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -421,7 +421,7 @@ export default class Event {
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 console.log(error)
@@ -445,7 +445,7 @@ export default class Event {
                 Name: name,
                 Mobile: mobile
             }
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
@@ -468,7 +468,7 @@ export default class Event {
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta, true).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
                 resolve(response)
             }).catch(error => {
                 let jsonErr = null
@@ -495,7 +495,7 @@ export default class Event {
                         value: "bearer " + this.idToken
                     }
                 ]
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -504,28 +504,28 @@ export default class Event {
 }
 
 //取得獎項清單
-function getLuckyDrawList(eventID, isBeta) {
+function getLuckyDrawList(eventID, DomainType) {
     const apiUrl = "/" + eventID + "/LuckyDraw"
-    return getFetchData("get", apiUrl, [], isBeta)
+    return getFetchData("get", apiUrl, [], DomainType)
 }
 //取得問卷清單
-function getQuestList(eventID, isBeta) {
+function getQuestList(eventID, DomainType) {
     const apiUrl = "/" + eventID + "/GetQuest"
-    return getFetchData("get", apiUrl, [], isBeta)
+    return getFetchData("get", apiUrl, [], DomainType)
 }
 //取得Speaker清單
-function getSpeakerList(eventID, isBeta) {
+function getSpeakerList(eventID, DomainType) {
     const apiUrl = "/" + eventID + "/Agenda/Speaker/List"
-    return getFetchData("get", apiUrl, [], isBeta)
+    return getFetchData("get", apiUrl, [], DomainType)
 }
 //取得Agenda清單
-function getAgendaList(eventID, isBeta) {
+function getAgendaList(eventID, DomainType) {
     const apiUrl = "/" + eventID + "/Agenda"
-    return getFetchData("get", apiUrl, [], isBeta)
+    return getFetchData("get", apiUrl, [], DomainType)
 }
 //取得Event資料
-function getEventData(eventID, isBeta) {
+function getEventData(eventID, DomainType) {
     const apiUrl = "/" + eventID
-    return getFetchData("get", apiUrl, [], isBeta)
+    return getFetchData("get", apiUrl, [], DomainType)
 }
 

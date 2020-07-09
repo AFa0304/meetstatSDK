@@ -6,8 +6,8 @@
     data: request data
     headerSetting: header資料 [{name:'headerName',value:'headerValue'},{name:'headerName2',value:'headerValue2'}]
 */
-export function httpRequest(type = "get", url, isAsync = false, data = {}, headerSettings = [], isBeta = false) {
-    const apiDomain = isBeta ? "https://capibeta.meetstat.co" : "https://capi.meetstat.co"
+export function httpRequest(type = "get", url, isAsync = false, data = {}, headerSettings = [], DomainType = 0) {
+    const apiDomain = DomainType === 0 ? "https://capi.meetstat.co" : DomainType === 1 ? "https://capibeta.meetstat.co" : "http://meetstatclientapi-beta2.azurewebsites.net"
     const xhr = new XMLHttpRequest()
     xhr.open(type, apiDomain + url, isAsync)
     xhr.setRequestHeader("Content-type", "application/json;charset=UTF-8")
@@ -38,9 +38,9 @@ export function httpRequest(type = "get", url, isAsync = false, data = {}, heade
     }
 }
 
-export function httpRequestPromise(type = "get", url, isAsync = false, data = {}, headerSettings = [], isBeta = false, isFormData = false) {
+export function httpRequestPromise(type = "get", url, isAsync = false, data = {}, headerSettings = [], DomainType = 0, isFormData = false) {
     return new Promise((resolve, reject) => {
-        const apiDomain = isBeta ? "https://capibeta.meetstat.co" : "https://capi.meetstat.co"
+        const apiDomain = DomainType === 0 ? "https://capi.meetstat.co" : DomainType === 1 ? "https://capibeta.meetstat.co" : "http://meetstatclientapi-beta2.azurewebsites.net"
         const xhr = new XMLHttpRequest()
         xhr.open(type, apiDomain + url, isAsync)
         if (isFormData) {
@@ -85,11 +85,11 @@ export function httpRequestPromise(type = "get", url, isAsync = false, data = {}
         }
     })
 }
-export function getFetchData(type = "get", url, headerSettings = [], isBeta = false) {
+export function getFetchData(type = "get", url, headerSettings = [], DomainType = 0) {
     let header = {
         "Content-type": "application/json;charset=UTF-8"
     }
-    const apiDomain = (isBeta ? "https://capibeta.meetstat.co" : "https://capi.meetstat.co") + url
+    const apiDomain = (DomainType === 0 ? "https://capi.meetstat.co" : DomainType === 1 ? "https://capibeta.meetstat.co" : "http://meetstatclientapi-beta2.azurewebsites.net") + url
     headerSettings.map(setting => {
         header[setting.name] = setting.value
     })

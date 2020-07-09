@@ -3,20 +3,20 @@ import { httpRequest, alertError, httpRequestPromise } from '../utils/utils'
 // import * as firebase from '../../firebase'
 
 export default class ChatRoom {
-    constructor(eventID, idToken, displaySysMsg = true, callback_receiveMsg = undefined, callback_receiveTopMsg = undefined, isBeta = false) {
+    constructor(eventID, idToken, displaySysMsg = true, callback_receiveMsg = undefined, callback_receiveTopMsg = undefined, DomainType = 0) {
         this.eventID = eventID
         this.idToken = idToken
         this.chatRoomID = ""
         this.userID = ""
         this.isCustomer = false
-        this.isBeta = isBeta
+        this.DomainType = DomainType
         this.displaySysMsg = displaySysMsg // 是否顯示系統訊息
         this.callback_ReceiveMessage = callback_receiveMsg // 接收訊息CallBack function(response,logs) 若有logs 回傳完整log
         this.callback_ReceiveTopMessage = callback_receiveTopMsg // 接收置頂訊息CallBack
         this.callback_userCount = undefined
         this.callback_popup = undefined
         this.callback_popupLiveQuest = undefined
-        this.apiDomain = isBeta ? "https://capibeta.meetstat.co" : "https://capi.meetstat.co"
+        this.apiDomain = DomainType === 0 ? "https://capi.meetstat.co" : DomainType === 1 ? "https://capibeta.meetstat.co" : "http://meetstatclientapi-beta2.azurewebsites.net"
     }
     init() {
         return new Promise((resolve, reject) => {
@@ -115,7 +115,7 @@ export default class ChatRoom {
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("post", apiUrl, true, data, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, data, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
@@ -136,7 +136,7 @@ export default class ChatRoom {
                         value: "bearer " + this.idToken
                     }
                 ]
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.isBeta))
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -152,7 +152,7 @@ export default class ChatRoom {
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("get", apiUrl, true, {}, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("get", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 // alertError(JSON.parse(error))
@@ -172,7 +172,7 @@ export default class ChatRoom {
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
@@ -195,7 +195,7 @@ export default class ChatRoom {
             const postData = {
                 TopMessage: topMessage
             }
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
@@ -215,7 +215,7 @@ export default class ChatRoom {
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
@@ -235,7 +235,7 @@ export default class ChatRoom {
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
@@ -258,7 +258,7 @@ export default class ChatRoom {
             const postData = {
                 "EventID": this.eventID
             }
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.isBeta).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
