@@ -45,7 +45,7 @@ export default class Event {
     //檢查Email是否已被註冊
     checkEmailExist(email) {
         return new Promise((resolve, reject) => {
-            let apiUrl = "/Customize/CheckEmailExist"
+            let apiUrl = "/" + this.eventID + "/Customize/CheckEmailExist"
             const postData = {
                 "email": email
             }
