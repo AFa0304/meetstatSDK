@@ -42,6 +42,27 @@ export default class Event {
             }
         })
     }
+    //檢查Email是否已被註冊
+    checkEmailExist(email) {
+        return new Promise((resolve, reject) => {
+            let apiUrl = "/Customize/CheckEmailExist"
+            const postData = {
+                "email": email
+            }
+            httpRequestPromise("post", apiUrl, true, postData, [], this.DomainType, false).then(response => {
+                resolve(response)
+            }).catch(error => {
+                let jsonErr = null
+                try {
+                    jsonErr = JSON.parse(error)
+                    reject(jsonErr)
+                } catch (err) {
+                    console.log(err)
+                    reject(error)
+                }
+            })
+        })
+    }
     //Client CheckIn
     clientCheckIn(agendaID, checkInType) {
         return new Promise((resolve, reject) => {
