@@ -16,7 +16,7 @@ export default class ChatRoom {
         this.callback_userCount = undefined
         this.callback_popup = undefined
         this.callback_popupLiveQuest = undefined
-        this.apiDomain = DomainType === 0 ? "https://capi.meetstat.co" : DomainType === 1 ? "https://capibeta.meetstat.co" : "http://meetstatclientapi-beta2.azurewebsites.net"
+        this.apiDomain = DomainType === 0 ? "https://capi.meetstat.co" : DomainType === 1 ? "http://meetstatclientapi-beta.azurewebsites.net" : "http://meetstatclientapi-beta2.azurewebsites.net"
     }
     init() {
         return new Promise((resolve, reject) => {
