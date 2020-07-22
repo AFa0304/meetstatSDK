@@ -106,9 +106,30 @@ export default class ChatRoom {
             })
         })
     }
-    postChatRoomPopup(data) {
+    //儲存聊天室彈跳視窗(議程)
+    postPopupAgenda(data) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/ChatRoom/PostChatRoomPopup/" + this.chatRoomID
+            const apiUrl = "/" + this.eventID + "/ChatRoom/PostPopupAgenda/" + this.chatRoomID
+            const headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
+                }
+            ]
+            httpRequestPromise("post", apiUrl, true, data, headerConfig, this.DomainType).then(response => {
+                resolve(response)
+            }).catch(error => {
+                alertError(JSON.parse(error))
+                reject(JSON.parse(error))
+            }).finally(() => {
+                this.isSending = false
+            })
+        })
+    }
+    //儲存聊天室彈跳視窗(即時問卷)
+    postPopupLiveQuest(data) {
+        return new Promise((resolve, reject) => {
+            const apiUrl = "/" + this.eventID + "/ChatRoom/PostPopupLiveQuest/" + this.chatRoomID
             const headerConfig = [
                 {
                     name: "Authorization",
@@ -205,37 +226,17 @@ export default class ChatRoom {
             })
         })
     }
-    //加入聊天室
-    joinChatRoom() {
+    //強制離線
+    setOffLine(data) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/ChatRoom/JoinChatRoom/" + this.chatRoomID + "?UserID=" + this.userID + "&isCustomer=" + this.isCustomer
+            const apiUrl = "/" + this.eventID + "/ChatRoom/SetOffLine/" + this.chatRoomID
             const headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
-            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
-                resolve(response)
-            }).catch(error => {
-                alertError(JSON.parse(error))
-                reject(JSON.parse(error))
-            }).finally(() => {
-                this.isSending = false
-            })
-        })
-    }
-    //離開聊天室
-    exitChatRoom() {
-        return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/ChatRoom/ExitChatRoom/" + this.chatRoomID + "?UserID=" + this.userID + "&isCustomer=" + this.isCustomer
-            const headerConfig = [
-                {
-                    name: "Authorization",
-                    value: "bearer " + this.idToken
-                }
-            ]
-            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
+            httpRequestPromise("post", apiUrl, true, data, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
