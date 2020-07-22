@@ -53,7 +53,6 @@ export default class ChatRoom {
                                 })
                                 // 彈跳視窗
                                 chatRoom.connection.on("ReceivePopupAgenda", function (response) {
-                                    console.log("彈跳視窗", response)
                                     if (chatRoom.callback_popup) {
                                         chatRoom.callback_popup(response)
                                     } else if (!chatRoom.callback_popup) {
@@ -99,6 +98,7 @@ export default class ChatRoom {
                             }).catch(function (error) {
                                 console.log(error)
                                 alert("您沒有權限加入聊天室")
+                                reject(error)
                             })
                         })
                     })
