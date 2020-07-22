@@ -8,17 +8,10 @@ export function handleAnswerChange(event, answers) {
     const questionID = target.getAttribute("name")
     const type = target.type
     const value = target.value
-    let isExist = false
     if (type === "checkbox") {
+        const exist_index = answers.findIndex(x => (x.name === questionID && x.value === value))
+        const isExist = exist_index !== -1
         const checked = target.checked
-        let exist_index = 0
-        answers.map((answer, index) => {
-            if (answer.name === questionID && answer.value === value) {
-                isExist = true
-                exist_index = index
-            }
-            return null
-        })
         if (checked && !isExist) {
             const obj = {
                 "name": questionID,
@@ -28,20 +21,27 @@ export function handleAnswerChange(event, answers) {
         } else if (!checked && isExist) {
             answers.splice(exist_index, 1)
         }
+    } else if (type === "file") {
+        const fileType = event.target.files[0].name.split(".")[event.target.files[0].name.split(".").length - 1]
+        const uploadFile = new File([event.target.files[0]], questionID + "." + fileType, { type: event.target.files[0].type })
+        const exist_index = answers.findIndex(x => x.name.indexOf(questionID) !== -1)
+        const isExist = exist_index !== -1
+        if (isExist) {
+            answers[exist_index] = uploadFile
+        } else {
+            answers.push(uploadFile)
+        }
     } else { //單選or問答
-        answers.map((answer) => {
-            if (answer.name === questionID) {
-                isExist = true
-                answer.value = value
-            }
-            return null
-        })
+        const exist_index = answers.findIndex(x => x.name === questionID)
+        const isExist = exist_index !== -1
         if (!isExist) {
             const obj = {
                 "name": questionID,
                 "value": value
             }
             answers.push(obj)
+        } else {
+            answers[exist_index].value = value
         }
     }
     return answers
