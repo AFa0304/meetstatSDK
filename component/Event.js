@@ -10,16 +10,20 @@ export default class Event {
         this.questList = []
         this.luckyDrawList = []
         this.eventData = {}
+        this.apiVersion = undefined
     }
     async init() {
         const DomainType = this.DomainType
         const eventID = this.eventID
+
+        let headerConfig = []
+        if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
         const taskList = [
-            getSpeakerList(eventID, DomainType),
-            getAgendaList(eventID, DomainType),
-            getQuestList(eventID, DomainType),
-            getLuckyDrawList(eventID, DomainType),
-            getEventData(eventID, DomainType)
+            getSpeakerList(eventID, DomainType, headerConfig),
+            getAgendaList(eventID, DomainType, headerConfig),
+            getQuestList(eventID, DomainType, headerConfig),
+            getLuckyDrawList(eventID, DomainType, headerConfig),
+            getEventData(eventID, DomainType, headerConfig)
         ]
         await Promise.all(taskList).then(response => {
             this.speakerList = response[0].Items
@@ -36,7 +40,9 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/EventReg/" + eventUserID + (invoiceID ? "?InvoiceID=" + invoiceID : "")
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType))
+                let headerConfig = []
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -45,11 +51,13 @@ export default class Event {
     //檢查Email是否已被註冊
     checkEmailExist(email) {
         return new Promise((resolve, reject) => {
-            let apiUrl = "/" + this.eventID + "/Customize/CheckEmailExist"
             const postData = {
                 "email": email
             }
-            httpRequestPromise("post", apiUrl, true, postData, [], this.DomainType, false).then(response => {
+            let apiUrl = "/" + this.eventID + "/Customize/CheckEmailExist"
+            let headerConfig = []
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, false).then(response => {
                 resolve(response)
             }).catch(error => {
                 let jsonErr = null
@@ -67,15 +75,16 @@ export default class Event {
     clientCheckIn(agendaID, checkInType) {
         return new Promise((resolve, reject) => {
             let apiUrl = "/ClientCheckin/CheckIn" + "?CheckInType=" + checkInType
-            if (agendaID) {
-                apiUrl += "&AgendaID=" + agendaID
-            }
-            const headerConfig = [
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+            if (agendaID) {
+                apiUrl += "&AgendaID=" + agendaID
+            }
             httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -98,12 +107,13 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/ClientCheckin"
-                const headerConfig = [
+                let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
@@ -115,7 +125,9 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/EventReg"
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType))
+                let headerConfig = []
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -126,11 +138,13 @@ export default class Event {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/EventReg"
             const postData = new FormData()
+            let headerConfig = []
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             postData.append("AnsJSON", JSON.stringify(answer))
             for (var i = 0; i < fileArray.length; i++) {
                 postData.append("Files", fileArray[i])
             }
-            httpRequestPromise("post", apiUrl, true, postData, [], this.DomainType, true).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
                 resolve(response)
             }).catch(error => {
                 let jsonErr = null
@@ -152,7 +166,9 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/LuckyDraw"
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType).Items)
+                let headerConfig = []
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType).Items)
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -163,12 +179,13 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/LuckyDraw/MyDrawItem"
-                const headerConfig = [
+                let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
@@ -180,6 +197,8 @@ export default class Event {
         return new Promise((resolve, reject) => {
             // 傳入後判斷是否為Guid   是=>搜尋ID   否=>搜尋整個Array
             let agendaID = ""
+            let headerConfig = []
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             if (isGuid(searchStr)) {
                 const result = this.agendaList.find(function (agenda) {
                     return agenda.ID === searchStr
@@ -196,7 +215,7 @@ export default class Event {
 
                 resultAry.length === 1 ? agendaID = resultAry[0].ID : resultAry.length > 1 ? reject(new Error("查到多組包含'" + searchStr + "'的Agenda")) : reject(new Error("查無包含'" + searchStr + "'的Agenda"))
             }
-            resolve(httpRequest("get", "/" + this.eventID + "/Agenda/" + agendaID, false, {}, [], this.DomainType))
+            resolve(httpRequest("get", "/" + this.eventID + "/Agenda/" + agendaID, false, {}, headerConfig, this.DomainType))
         })
     }
     // 取得Speaker資料
@@ -204,7 +223,9 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/Agenda/Speaker/" + speakerID
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType))
+                let headerConfig = []
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -217,7 +238,9 @@ export default class Event {
             "FrontSiteURL": window.location.href
         }
         try {
-            httpRequest("post", apiUrl, false, data, [], this.DomainType)
+            let headerConfig = []
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+            httpRequest("post", apiUrl, false, data, headerConfig, this.DomainType)
         } catch (error) {
             console.log(error)
         }
@@ -226,15 +249,16 @@ export default class Event {
     eventLogin(isAlertError = true) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Account/EventLogin"
-            const headerConfig = [
+            const postData = {
+                "EventID": this.eventID
+            }
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
-            const postData = {
-                "EventID": this.eventID
-            }
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -249,12 +273,13 @@ export default class Event {
     meetLogin(isAlertError = true) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Account/MeetLogin"
-            const headerConfig = [
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -270,12 +295,13 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Account/Info"
-                const headerConfig = [
+                let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
@@ -286,16 +312,17 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/Customize/UserRegData_EmailName"
-                const headerConfig = [
+                const postData = {
+                    "Email": email,
+                    "Name": name
+                }
+                let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
-                const postData = {
-                    "Email": email,
-                    "Name": name
-                }
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
@@ -306,16 +333,17 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/Customize/UserRegData_NameMobile"
-                const headerConfig = [
+                const postData = {
+                    "Mobile": mobile,
+                    "Name": name
+                }
+                let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
-                const postData = {
-                    "Mobile": mobile,
-                    "Name": name
-                }
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
@@ -326,12 +354,13 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Account/RegData"
-                const headerConfig = [
+                let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
@@ -343,12 +372,13 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Ticket"
-                const headerConfig = [
+                let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
@@ -360,12 +390,13 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Meet"
-                const headerConfig = [
+                let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
@@ -377,12 +408,13 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/Mosaic/" + mosaicID + "/GetClientFullImage"
-                const headerConfig = [
+                let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
@@ -393,15 +425,16 @@ export default class Event {
     uploadMosaicTile(mosaicID, base64) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/Mosaic/" + mosaicID + "/UploadTileImage_FullImage"
-            const headerConfig = [
+            const postData = {
+                "ImageBase64": base64
+            }
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
-            const postData = {
-                "ImageBase64": base64
-            }
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -415,7 +448,9 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/Vote"
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType))
+                let headerConfig = []
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -426,7 +461,9 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/Vote/" + voteID
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType))
+                let headerConfig = []
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -436,12 +473,13 @@ export default class Event {
     voteIt(voteID, optionID) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/Vote/" + voteID + "/VoteIt?OptionID=" + optionID
-            const headerConfig = [
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -455,17 +493,18 @@ export default class Event {
     newUser(name, mobile) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Register/NewUser"
-            const headerConfig = [
-                {
-                    name: "Authorization",
-                    value: "bearer " + this.idToken
-                }
-            ]
             const postData = {
                 EventID: this.eventID,
                 Name: name,
                 Mobile: mobile
             }
+            let headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
+                }
+            ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -478,17 +517,18 @@ export default class Event {
     editAccount(answer, fileArray = []) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Account/Edit"
-            const postData = new FormData()
+            let postData = new FormData()
             postData.append("AnsJSON", JSON.stringify(answer))
             for (var i = 0; i < fileArray.length; i++) {
                 postData.append("Files", fileArray[i])
             }
-            const headerConfig = [
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -510,12 +550,13 @@ export default class Event {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Account/Edit"
-                const headerConfig = [
+                let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
@@ -525,28 +566,28 @@ export default class Event {
 }
 
 //取得獎項清單
-function getLuckyDrawList(eventID, DomainType) {
+function getLuckyDrawList(eventID, DomainType, headerConfig = []) {
     const apiUrl = "/" + eventID + "/LuckyDraw"
-    return getFetchData("get", apiUrl, [], DomainType)
+    return getFetchData("get", apiUrl, headerConfig, DomainType)
 }
 //取得問卷清單
-function getQuestList(eventID, DomainType) {
+function getQuestList(eventID, DomainType, headerConfig = []) {
     const apiUrl = "/" + eventID + "/GetQuest"
-    return getFetchData("get", apiUrl, [], DomainType)
+    return getFetchData("get", apiUrl, headerConfig, DomainType)
 }
 //取得Speaker清單
-function getSpeakerList(eventID, DomainType) {
+function getSpeakerList(eventID, DomainType, headerConfig = []) {
     const apiUrl = "/" + eventID + "/Agenda/Speaker/List"
-    return getFetchData("get", apiUrl, [], DomainType)
+    return getFetchData("get", apiUrl, headerConfig, DomainType)
 }
 //取得Agenda清單
-function getAgendaList(eventID, DomainType) {
+function getAgendaList(eventID, DomainType, headerConfig = []) {
     const apiUrl = "/" + eventID + "/Agenda"
-    return getFetchData("get", apiUrl, [], DomainType)
+    return getFetchData("get", apiUrl, headerConfig, DomainType)
 }
 //取得Event資料
-function getEventData(eventID, DomainType) {
+function getEventData(eventID, DomainType, headerConfig = []) {
     const apiUrl = "/" + eventID
-    return getFetchData("get", apiUrl, [], DomainType)
+    return getFetchData("get", apiUrl, headerConfig, DomainType)
 }
 

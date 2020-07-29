@@ -95,6 +95,7 @@ export function getFetchData(type = "get", url, headerSettings = [], DomainType 
     })
     return fetch(apiDomain, {
         method: type,
+        headers: header,
         // body: data && JSON.stringify(data),
         mode: "cors",
         credentials: "omit"

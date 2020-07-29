@@ -5,13 +5,16 @@ export default class Quest {
         this.questID = questID
         this.DomainType = DomainType
         this.idToken = idToken
+        this.apiVersion = undefined
     }
     //取得問卷
     getQuest() {
         return new Promise((resolve, reject) => {
             try {
+                let headerConfig = []
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 const apiUrl = "/Quest/" + this.questID
-                resolve(httpRequest("get", apiUrl, false, {}, [], this.DomainType))
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -26,12 +29,13 @@ export default class Quest {
             for (var i = 0; i < fileArray.length; i++) {
                 postData.append("Files", fileArray[i])
             }
-            const headerConfig = [
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -48,7 +52,9 @@ export default class Quest {
                 const postData = {
                     "Email": email
                 }
-                resolve(httpRequest("post", apiUrl, false, postData, [], this.DomainType))
+                let headerConfig = []
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
             }
@@ -62,7 +68,9 @@ export default class Quest {
         }
         return new Promise((resolve, reject) => {
             const apiUrl = "/Quest/" + this.questID + "/CheckQuestionUnion"
-            httpRequestPromise("post", apiUrl, true, postData, [], this.DomainType).then(response => {
+            let headerConfig = []
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
@@ -75,12 +83,13 @@ export default class Quest {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Quest/" + this.questID + "/GetAnswerDetail"
-                const headerConfig = [
+                let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
@@ -96,12 +105,13 @@ export default class Quest {
         }
         return new Promise((resolve, reject) => {
             const apiUrl = "/Quest/" + this.questID + "/PostAnswer"
-            const headerConfig = [
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
                 resolve(response)
             }).catch(error => {

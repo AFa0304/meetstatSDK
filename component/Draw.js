@@ -7,18 +7,20 @@ export default class Draw {
         this.eventID = eventID
         this.drawID = drawID
         this.idToken = idToken
+        this.apiVersion = undefined
     }
     //取得Draw塗鴉牆
     getGraffitiWall() {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Draw/" + this.drawID + "/GraffitiWall?EventID=" + this.eventID
-                const headerConfig = [
+                let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
@@ -29,12 +31,13 @@ export default class Draw {
     drawTextToPng(datas) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Draw/" + this.drawID + "/DrawTextToPng"
-            const headerConfig = [
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, datas, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {

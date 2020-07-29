@@ -13,6 +13,7 @@ export default class LivePolls {
         this.callback_start = undefined
         this.callback_result = undefined
         this.callback_end = undefined
+        this.apiVersion = undefined
     }
     init() {
         return new Promise((resolve, reject) => {
@@ -69,12 +70,13 @@ export default class LivePolls {
     findSession() {
         return new Promise((resolve, reject) => {
             const apiUrl = "/LivePolls/FindSession/" + this.pollsID
-            const headerConfig = [
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("get", apiUrl, true, {}, headerConfig, 99, false).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -92,12 +94,13 @@ export default class LivePolls {
     getLivePolls() {
         return new Promise((resolve, reject) => {
             const apiUrl = "/LivePolls/" + this.sessionID
-            const headerConfig = [
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("get", apiUrl, true, {}, headerConfig, 99, false).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -116,15 +119,16 @@ export default class LivePolls {
     eventLogin() {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Account/EventLogin"
-            const headerConfig = [
+            const postData = {
+                "EventID": this.eventID
+            }
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
-            const postData = {
-                "EventID": this.eventID
-            }
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {

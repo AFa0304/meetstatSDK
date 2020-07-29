@@ -17,6 +17,7 @@ export default class ChatRoom {
         this.callback_popup = undefined
         this.callback_popupLiveQuest = undefined
         this.apiDomain = DomainType === 0 ? "https://capi.meetstat.co" : DomainType === 1 ? "https://meetstatclientapi-beta.azurewebsites.net" : "https://meetstatclientapi-beta2.azurewebsites.net"
+        this.apiVersion = undefined
     }
     init() {
         return new Promise((resolve, reject) => {
@@ -106,16 +107,18 @@ export default class ChatRoom {
             })
         })
     }
+    
     //儲存聊天室彈跳視窗(議程)
     postPopupAgenda(data) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/ChatRoom/PostPopupAgenda/" + this.chatRoomID
-            const headerConfig = [
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, data, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -130,12 +133,13 @@ export default class ChatRoom {
     postPopupLiveQuest(data) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/ChatRoom/PostPopupLiveQuest/" + this.chatRoomID
-            const headerConfig = [
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, data, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -151,12 +155,13 @@ export default class ChatRoom {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/ChatRoom/GetChatRoom"
-                const headerConfig = [
+                let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 reject(JSON.parse(error.message))
@@ -167,12 +172,13 @@ export default class ChatRoom {
     checkChatRoomExpelled() {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/ChatRoom/CheckIsExpelled/" + this.chatRoomID + "?UserID=" + this.userID + "&isCustomer=" + this.isCustomer
-            const headerConfig = [
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("get", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -187,12 +193,13 @@ export default class ChatRoom {
     sendMessage(message) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/ChatRoom/SendMessage/" + this.chatRoomID + "?UserID=" + this.userID + "&isCustomer=" + this.isCustomer + "&Message=" + message
-            const headerConfig = [
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -207,15 +214,16 @@ export default class ChatRoom {
     postTopMessage(topMessage) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/ChatRoom/PostTopMessage/" + this.chatRoomID
-            const headerConfig = [
+            const postData = {
+                TopMessage: topMessage
+            }
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
-            const postData = {
-                TopMessage: topMessage
-            }
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -230,12 +238,13 @@ export default class ChatRoom {
     setOffLine(data) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/ChatRoom/SetOffLine/" + this.chatRoomID
-            const headerConfig = [
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, data, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
@@ -250,15 +259,16 @@ export default class ChatRoom {
     eventLogin() {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Account/EventLogin"
-            const headerConfig = [
+            const postData = {
+                "EventID": this.eventID
+            }
+            let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
-            const postData = {
-                "EventID": this.eventID
-            }
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {

@@ -4,6 +4,7 @@ export default class Trigger {
     constructor(triggerID = "", DomainType = 0) {
         this.triggerID = triggerID
         this.DomainType = DomainType
+        this.apiVersion = undefined
     }
     //觸發Trigger
     trigger() {
@@ -11,13 +12,14 @@ export default class Trigger {
             try {
                 const apiUrl = "/Trigger/" + this.triggerID
                 const tokens = getTriggerToken(this.triggerID, this.DomainType)
-                const headerSetting = [
+                let headerConfig = [
                     {
                         name: "RequestToken",
                         value: tokens.RequestToken
                     }
                 ]
-                resolve(httpRequest("post", apiUrl, false, {}, headerSetting, this.DomainType))
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                resolve(httpRequest("post", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
                 alertError(JSON.parse(error.message))
                 reject(JSON.parse(error.message))
@@ -30,7 +32,9 @@ export default class Trigger {
 function getTriggerToken(triggerID, DomainType) {
     try {
         const apiUrl = "/Trigger/" + triggerID
-        return (httpRequest("get", apiUrl, false, {}, [], DomainType))
+        let headerConfig = []
+        if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+        return (httpRequest("get", apiUrl, false, {}, headerConfig, DomainType))
     } catch (error) {
         return (JSON.parse(error.message))
     }
