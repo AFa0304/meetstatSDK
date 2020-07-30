@@ -7,7 +7,7 @@
     headerSetting: header資料 [{name:'headerName',value:'headerValue'},{name:'headerName2',value:'headerValue2'}]
 */
 export function httpRequest(type = "get", url, isAsync = false, data = {}, headerSettings = [], DomainType = 0) {
-    const apiDomain = DomainType === 0 ? "https://capi.meetstat.co" : DomainType === 1 ? "https://meetstatclientapi-beta.azurewebsites.net" : "https://meetstatclientapi-beta2.azurewebsites.net"
+    const apiDomain = getDomain(DomainType)
     const xhr = new XMLHttpRequest()
     xhr.open(type, apiDomain + url, isAsync)
     xhr.setRequestHeader("Content-type", "application/json;charset=UTF-8")
@@ -40,7 +40,7 @@ export function httpRequest(type = "get", url, isAsync = false, data = {}, heade
 
 export function httpRequestPromise(type = "get", url, isAsync = false, data = {}, headerSettings = [], DomainType = 0, isFormData = false) {
     return new Promise((resolve, reject) => {
-        const apiDomain = DomainType === 0 ? "https://capi.meetstat.co" : DomainType === 1 ? "https://meetstatclientapi-beta.azurewebsites.net" : "https://meetstatclientapi-beta2.azurewebsites.net"
+        const apiDomain = getDomain(DomainType)
         const xhr = new XMLHttpRequest()
         xhr.open(type, apiDomain + url, isAsync)
         if (isFormData) {
@@ -89,7 +89,7 @@ export function getFetchData(type = "get", url, headerSettings = [], DomainType 
     let header = {
         "Content-type": "application/json;charset=UTF-8"
     }
-    const apiDomain = (DomainType === 0 ? "https://capi.meetstat.co" : DomainType === 1 ? "https://meetstatclientapi-beta.azurewebsites.net" : "https://meetstatclientapi-beta2.azurewebsites.net") + url
+    const apiDomain = getDomain(DomainType) + url
     headerSettings.map(setting => {
         header[setting.name] = setting.value
     })
@@ -118,4 +118,18 @@ export function isGuid(testID) {
 export function alertError(error) {
     alert(error.Errors ? error.Errors.length > 0 ? error.Errors[0].Message : error.Message ? error.Message : "操作失敗" : error.Message ? error.Message : "操作失敗")
     console.log(error.Message)
+}
+function getDomain(domainType) {
+    switch (domainType) {
+        case 0:
+            return "https://capi.meetstat.co"
+        case 1:
+            return "https://meetstatclientapi-beta.azurewebsites.net"
+        case 2:
+            return "https://meetstatclientapi-beta2.azurewebsites.net"
+        case 3:
+            return "https://websocket.meetstat.co"
+        default:
+            return "https://capi.meetstat.co"
+    }
 }

@@ -3,7 +3,7 @@ import { httpRequest, alertError, httpRequestPromise } from '../utils/utils'
 // import * as firebase from '../../firebase'
 
 export default class ChatRoom {
-    constructor(eventID, idToken, displaySysMsg = true, callback_receiveMsg = undefined, callback_receiveTopMsg = undefined, DomainType = 0) {
+    constructor(eventID, idToken, displaySysMsg = true, callback_receiveMsg = undefined, callback_receiveTopMsg = undefined, DomainType = 3) {
         this.eventID = eventID
         this.idToken = idToken
         this.chatRoomID = ""
@@ -16,13 +16,14 @@ export default class ChatRoom {
         this.callback_userCount = undefined
         this.callback_popup = undefined
         this.callback_popupLiveQuest = undefined
-        this.apiDomain = DomainType === 0 ? "https://capi.meetstat.co" : DomainType === 1 ? "https://meetstatclientapi-beta.azurewebsites.net" : "https://meetstatclientapi-beta2.azurewebsites.net"
+        this.apiDomain = "https://websocket.meetstat.co"
         this.apiVersion = undefined
     }
     init() {
         return new Promise((resolve, reject) => {
             const chatRoom = this
             const HubConnectionBuilder = require('../../@aspnet/signalr').HubConnectionBuilder
+            const HttpTransportType = require('../../@aspnet/signalr').HttpTransportType
             const firebase = require("../../firebase")
             this.eventLogin().then(function (loginData) {
                 firebase.auth().signInWithCustomToken(loginData.EventAccessToken).then(function () {
@@ -30,10 +31,13 @@ export default class ChatRoom {
                         chatRoom.idToken = newIdToken
                         chatRoom.getChatRoom().then(function (response) {
                             chatRoom.chatRoomID = response.ChatRoomID
-                            chatRoom.userID = response.UserID
-                            chatRoom.isCustomer = response.isCustomer
                             chatRoom.checkChatRoomExpelled().then(function () {
-                                chatRoom.connection = new HubConnectionBuilder().withUrl(chatRoom.apiDomain + "/chatHub?ChatRoomID=" + chatRoom.chatRoomID + "&UserID=" + chatRoom.userID + "&isCustomer=" + chatRoom.isCustomer).build()
+                                const options = {
+                                    skipNegotiation: true,
+                                    transport: HttpTransportType.WebSockets,
+                                    accessTokenFactory: () => chatRoom.idToken
+                                }
+                                chatRoom.connection = new HubConnectionBuilder().withUrl(chatRoom.apiDomain + "/Hub_ChatHub?ChatRoomID=" + chatRoom.chatRoomID, options).build()
                                 chatRoom.connection.start().then(function () {
                                     if (chatRoom.callback_ReceiveTopMessage && response.TopMessage) { //初始化置頂貼文
                                         chatRoom.callback_ReceiveTopMessage(setUrlToDOM(response.TopMessage))
@@ -107,11 +111,10 @@ export default class ChatRoom {
             })
         })
     }
-    
     //儲存聊天室彈跳視窗(議程)
     postPopupAgenda(data) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/ChatRoom/PostPopupAgenda/" + this.chatRoomID
+            const apiUrl = "/ChatRoom/PostPopupAgenda/" + this.chatRoomID
             let headerConfig = [
                 {
                     name: "Authorization",
@@ -132,7 +135,7 @@ export default class ChatRoom {
     //儲存聊天室彈跳視窗(即時問卷)
     postPopupLiveQuest(data) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/ChatRoom/PostPopupLiveQuest/" + this.chatRoomID
+            const apiUrl = "/ChatRoom/PostPopupLiveQuest/" + this.chatRoomID
             let headerConfig = [
                 {
                     name: "Authorization",
@@ -154,7 +157,7 @@ export default class ChatRoom {
     getChatRoom() {
         return new Promise((resolve, reject) => {
             try {
-                const apiUrl = "/" + this.eventID + "/ChatRoom/GetChatRoom"
+                const apiUrl = "/ChatRoom/GetChatRoom"
                 let headerConfig = [
                     {
                         name: "Authorization",
@@ -171,7 +174,7 @@ export default class ChatRoom {
     //檢查聊天室權限
     checkChatRoomExpelled() {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/ChatRoom/CheckIsExpelled/" + this.chatRoomID + "?UserID=" + this.userID + "&isCustomer=" + this.isCustomer
+            const apiUrl = "/ChatRoom/CheckIsExpelled/" + this.chatRoomID
             let headerConfig = [
                 {
                     name: "Authorization",
@@ -192,7 +195,7 @@ export default class ChatRoom {
     //傳送訊息
     sendMessage(message) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/ChatRoom/SendMessage/" + this.chatRoomID + "?UserID=" + this.userID + "&isCustomer=" + this.isCustomer + "&Message=" + message
+            const apiUrl = "/ChatRoom/SendMessage/" + this.chatRoomID + "?Message=" + message
             let headerConfig = [
                 {
                     name: "Authorization",
@@ -213,7 +216,7 @@ export default class ChatRoom {
     //寫入置頂訊息
     postTopMessage(topMessage) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/ChatRoom/PostTopMessage/" + this.chatRoomID
+            const apiUrl = "/ChatRoom/PostTopMessage/" + this.chatRoomID
             const postData = {
                 TopMessage: topMessage
             }
@@ -237,7 +240,7 @@ export default class ChatRoom {
     //強制離線
     setOffLine(data) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/ChatRoom/SetOffLine/" + this.chatRoomID
+            const apiUrl = "/ChatRoom/SetOffLine/" + this.chatRoomID
             let headerConfig = [
                 {
                     name: "Authorization",
@@ -269,7 +272,7 @@ export default class ChatRoom {
                 }
             ]
             if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, 0).then(response => {
                 resolve(response)
             }).catch(error => {
                 alertError(JSON.parse(error))
