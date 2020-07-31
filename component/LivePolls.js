@@ -1,5 +1,5 @@
 import { httpRequest, alertError, httpRequestPromise } from '../utils/utils'
-// import { HubConnectionBuilder } from '../../@aspnet/signalr'
+// import { HubConnectionBuilder } from '../../@microsoft/signalr'
 // import * as firebase from '../../firebase'
 
 export default class LivePolls {
@@ -18,8 +18,8 @@ export default class LivePolls {
     init() {
         return new Promise((resolve, reject) => {
             const livePolls = this
-            const HubConnectionBuilder = require('../../@aspnet/signalr').HubConnectionBuilder
-            const HttpTransportType = require('../../@aspnet/signalr').HttpTransportType
+            const HubConnectionBuilder = require('../../@microsoft/signalr').HubConnectionBuilder
+            const HttpTransportType = require('../../@microsoft/signalr').HttpTransportType
             const firebase = require("../../firebase")
             this.eventLogin().then(function (loginData) {
                 firebase.auth().signInWithCustomToken(loginData.EventAccessToken).then(function () {
@@ -32,7 +32,7 @@ export default class LivePolls {
                                 transport: HttpTransportType.WebSockets,
                                 accessTokenFactory: () => livePolls.idToken
                             }
-                            livePolls.connection = new HubConnectionBuilder().withUrl(livePolls.socketDomain + "/Hub_LivePolls?SessionID=" + livePolls.sessionID, options).build();
+                            livePolls.connection = new HubConnectionBuilder().withAutomaticReconnect().withUrl(livePolls.socketDomain + "/Hub_LivePolls?SessionID=" + livePolls.sessionID, options).build();
                             livePolls.connection.start().then(() => {
                                 livePolls.connection.on("QuestionStart", (response) => {
                                     if (livePolls.callback_start) {

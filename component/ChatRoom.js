@@ -1,5 +1,5 @@
 import { httpRequest, alertError, httpRequestPromise } from '../utils/utils'
-// import { HubConnectionBuilder } from '../../@aspnet/signalr'
+// import { HubConnectionBuilder } from '../../@microsoft/signalr'
 // import * as firebase from '../../firebase'
 
 export default class ChatRoom {
@@ -22,8 +22,8 @@ export default class ChatRoom {
     init() {
         return new Promise((resolve, reject) => {
             const chatRoom = this
-            const HubConnectionBuilder = require('../../@aspnet/signalr').HubConnectionBuilder
-            const HttpTransportType = require('../../@aspnet/signalr').HttpTransportType
+            const HubConnectionBuilder = require('../../@microsoft/signalr').HubConnectionBuilder
+            const HttpTransportType = require('../../@microsoft/signalr').HttpTransportType
             const firebase = require("../../firebase")
             this.eventLogin().then(function (loginData) {
                 firebase.auth().signInWithCustomToken(loginData.EventAccessToken).then(function () {
@@ -37,7 +37,7 @@ export default class ChatRoom {
                                     transport: HttpTransportType.WebSockets,
                                     accessTokenFactory: () => chatRoom.idToken
                                 }
-                                chatRoom.connection = new HubConnectionBuilder().withUrl(chatRoom.apiDomain + "/Hub_ChatHub?ChatRoomID=" + chatRoom.chatRoomID, options).build()
+                                chatRoom.connection = new HubConnectionBuilder().withAutomaticReconnect().withUrl(chatRoom.apiDomain + "/Hub_ChatHub?ChatRoomID=" + chatRoom.chatRoomID, options).build()
                                 chatRoom.connection.start().then(function () {
                                     if (chatRoom.callback_ReceiveTopMessage && response.TopMessage) { //初始化置頂貼文
                                         chatRoom.callback_ReceiveTopMessage(setUrlToDOM(response.TopMessage))
