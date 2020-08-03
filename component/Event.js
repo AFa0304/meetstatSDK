@@ -1,4 +1,5 @@
 import { isGuid, httpRequest, alertError, httpRequestPromise, getFetchData } from '../utils/utils'
+import { auth } from '../../firebase'
 
 export default class Event {
     constructor(eventID = "", idToken = "", DomainType = 0) {
@@ -15,7 +16,6 @@ export default class Event {
     async init() {
         const DomainType = this.DomainType
         const eventID = this.eventID
-
         let headerConfig = []
         if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
         const taskList = [
@@ -74,39 +74,8 @@ export default class Event {
     //Client CheckIn
     clientCheckIn(agendaID, checkInType) {
         return new Promise((resolve, reject) => {
-            let apiUrl = "/ClientCheckin/CheckIn" + "?CheckInType=" + checkInType
-            let headerConfig = [
-                {
-                    name: "Authorization",
-                    value: "bearer " + this.idToken
-                }
-            ]
-            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-            if (agendaID) {
-                apiUrl += "&AgendaID=" + agendaID
-            }
-            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
-                resolve(response)
-            }).catch(error => {
-                let jsonErr = null
-                try {
-                    jsonErr = JSON.parse(error)
-                    alertError(jsonErr)
-                    reject(jsonErr)
-                } catch (err) {
-                    //錯誤response非Object時
-                    console.log(err)
-                    alert("送出失敗")
-                    reject(error)
-                }
-            })
-        })
-    }
-    //取得CheckIn資料
-    getClientCheckIn() {
-        return new Promise((resolve, reject) => {
-            try {
-                const apiUrl = "/ClientCheckin"
+            this.eventLogin().then(() => {
+                let apiUrl = "/ClientCheckin/CheckIn" + "?CheckInType=" + checkInType
                 let headerConfig = [
                     {
                         name: "Authorization",
@@ -114,10 +83,45 @@ export default class Event {
                     }
                 ]
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
-            } catch (error) {
-                reject(JSON.parse(error.message))
-            }
+                if (agendaID) {
+                    apiUrl += "&AgendaID=" + agendaID
+                }
+                httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
+                    resolve(response)
+                }).catch(error => {
+                    let jsonErr = null
+                    try {
+                        jsonErr = JSON.parse(error)
+                        alertError(jsonErr)
+                        reject(jsonErr)
+                    } catch (err) {
+                        //錯誤response非Object時
+                        console.log(err)
+                        alert("送出失敗")
+                        reject(error)
+                    }
+                })
+            })
+        })
+    }
+    //取得CheckIn資料
+    getClientCheckIn() {
+        return new Promise((resolve, reject) => {
+            this.eventLogin().then(() => {
+                try {
+                    const apiUrl = "/ClientCheckin"
+                    let headerConfig = [
+                        {
+                            name: "Authorization",
+                            value: "bearer " + this.idToken
+                        }
+                    ]
+                    if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                    resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
+                } catch (error) {
+                    reject(JSON.parse(error.message))
+                }
+            })
         })
     }
     //取得註冊表單
@@ -177,19 +181,21 @@ export default class Event {
     //查詢中獎物品
     getDrawItem() {
         return new Promise((resolve, reject) => {
-            try {
-                const apiUrl = "/" + this.eventID + "/LuckyDraw/MyDrawItem"
-                let headerConfig = [
-                    {
-                        name: "Authorization",
-                        value: "bearer " + this.idToken
-                    }
-                ]
-                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
-            } catch (error) {
-                reject(JSON.parse(error.message))
-            }
+            this.eventLogin().then(() => {
+                try {
+                    const apiUrl = "/" + this.eventID + "/LuckyDraw/MyDrawItem"
+                    let headerConfig = [
+                        {
+                            name: "Authorization",
+                            value: "bearer " + this.idToken
+                        }
+                    ]
+                    if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                    resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
+                } catch (error) {
+                    reject(JSON.parse(error.message))
+                }
+            })
         })
     }
     // 取得Agenda (搜尋ID or 字串 => 若找不到或超過一組則throw error)
@@ -248,6 +254,7 @@ export default class Event {
     //登入活動
     eventLogin(isAlertError = true) {
         return new Promise((resolve, reject) => {
+            const event = this
             const apiUrl = "/Account/EventLogin"
             const postData = {
                 "EventID": this.eventID
@@ -260,7 +267,12 @@ export default class Event {
             ]
             if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
-                resolve(response)
+                auth().signInWithCustomToken(response.EventAccessToken).then(function () {
+                    auth().currentUser.getIdToken().then(function (newIdToken) {
+                        event.idToken = newIdToken
+                        resolve(response)
+                    })
+                })
             }).catch(error => {
                 if (isAlertError) {
                     alertError(JSON.parse(error))
@@ -272,29 +284,8 @@ export default class Event {
     //登入會議室
     meetLogin(isAlertError = true) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/Account/MeetLogin"
-            let headerConfig = [
-                {
-                    name: "Authorization",
-                    value: "bearer " + this.idToken
-                }
-            ]
-            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
-                resolve(response)
-            }).catch(error => {
-                if (isAlertError) {
-                    alertError(JSON.parse(error))
-                }
-                reject(JSON.parse(error))
-            })
-        })
-    }
-    //取得Firebase帳戶資料
-    getAccountInfo() {
-        return new Promise((resolve, reject) => {
-            try {
-                const apiUrl = "/Account/Info"
+            this.eventLogin().then(() => {
+                const apiUrl = "/Account/MeetLogin"
                 let headerConfig = [
                     {
                         name: "Authorization",
@@ -302,10 +293,35 @@ export default class Event {
                     }
                 ]
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
-            } catch (error) {
-                reject(JSON.parse(error.message))
-            }
+                httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
+                    resolve(response)
+                }).catch(error => {
+                    if (isAlertError) {
+                        alertError(JSON.parse(error))
+                    }
+                    reject(JSON.parse(error))
+                })
+            })
+        })
+    }
+    //取得Firebase帳戶資料
+    getAccountInfo() {
+        return new Promise((resolve, reject) => {
+            this.eventLogin().then(() => {
+                try {
+                    const apiUrl = "/Account/FirebaseInfo"
+                    let headerConfig = [
+                        {
+                            name: "Authorization",
+                            value: "bearer " + this.idToken
+                        }
+                    ]
+                    if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                    resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
+                } catch (error) {
+                    reject(JSON.parse(error.message))
+                }
+            })
         })
     }
     getUserRegDataEmailName(email, name) {
@@ -352,19 +368,34 @@ export default class Event {
     }
     getRegData() {
         return new Promise((resolve, reject) => {
-            try {
-                const apiUrl = "/Account/RegData"
-                let headerConfig = [
-                    {
-                        name: "Authorization",
-                        value: "bearer " + this.idToken
+            this.eventLogin().then(() => {
+                try {
+                    const apiUrl = "/Account/RegData"
+                    let headerConfig = [
+                        {
+                            name: "Authorization",
+                            value: "bearer " + this.idToken
+                        }
+                    ]
+                    if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                    resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
+                } catch (error) {
+                    console.log(error)
+                    let jsonErr = null
+                    try {
+                        jsonErr = JSON.parse(error)
+                        console.log(jsonErr)
+                        reject(jsonErr)
+                    } catch (err) {
+                        //錯誤response非Object時
+                        console.log(err)
+                        reject({
+                            message: "發生錯誤"
+                        })
                     }
-                ]
-                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
-            } catch (error) {
-                reject(JSON.parse(error.message))
-            }
+                    // reject(JSON.parse(error.message))
+                }
+            })
         })
     }
     //取得QR Code&票卷
@@ -388,26 +419,51 @@ export default class Event {
     //取得會議室連結
     getMeet() {
         return new Promise((resolve, reject) => {
-            try {
-                const apiUrl = "/Meet"
-                let headerConfig = [
-                    {
-                        name: "Authorization",
-                        value: "bearer " + this.idToken
-                    }
-                ]
-                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
-            } catch (error) {
-                reject(JSON.parse(error.message))
-            }
+            this.eventLogin().then(() => {
+                try {
+                    const apiUrl = "/Meet"
+                    let headerConfig = [
+                        {
+                            name: "Authorization",
+                            value: "bearer " + this.idToken
+                        }
+                    ]
+                    if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                    resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
+                } catch (error) {
+                    reject(JSON.parse(error.message))
+                }
+            })
         })
     }
     //取得Mosaic預覽圖
     getMosaicFullImage(mosaicID) {
         return new Promise((resolve, reject) => {
-            try {
-                const apiUrl = "/" + this.eventID + "/Mosaic/" + mosaicID + "/GetClientFullImage"
+            this.eventLogin().then(() => {
+                try {
+                    const apiUrl = "/" + this.eventID + "/Mosaic/" + mosaicID + "/GetClientFullImage"
+                    let headerConfig = [
+                        {
+                            name: "Authorization",
+                            value: "bearer " + this.idToken
+                        }
+                    ]
+                    if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                    resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
+                } catch (error) {
+                    reject(JSON.parse(error.message))
+                }
+            })
+        })
+    }
+    //上傳Mosaic預覽圖
+    uploadMosaicTile(mosaicID, base64) {
+        return new Promise((resolve, reject) => {
+            this.eventLogin().then(() => {
+                const apiUrl = "/" + this.eventID + "/Mosaic/" + mosaicID + "/UploadTileImage_FullImage"
+                const postData = {
+                    "ImageBase64": base64
+                }
                 let headerConfig = [
                     {
                         name: "Authorization",
@@ -415,31 +471,12 @@ export default class Event {
                     }
                 ]
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
-            } catch (error) {
-                reject(JSON.parse(error.message))
-            }
-        })
-    }
-    //上傳Mosaic預覽圖
-    uploadMosaicTile(mosaicID, base64) {
-        return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/Mosaic/" + mosaicID + "/UploadTileImage_FullImage"
-            const postData = {
-                "ImageBase64": base64
-            }
-            let headerConfig = [
-                {
-                    name: "Authorization",
-                    value: "bearer " + this.idToken
-                }
-            ]
-            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
-                resolve(response)
-            }).catch(error => {
-                alertError(JSON.parse(error))
-                reject(JSON.parse(error))
+                httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
+                    resolve(response)
+                }).catch(error => {
+                    alertError(JSON.parse(error))
+                    reject(JSON.parse(error))
+                })
             })
         })
     }
@@ -472,20 +509,22 @@ export default class Event {
     //投票
     voteIt(voteID, optionID) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/Vote/" + voteID + "/VoteIt?OptionID=" + optionID
-            let headerConfig = [
-                {
-                    name: "Authorization",
-                    value: "bearer " + this.idToken
-                }
-            ]
-            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
-                resolve(response)
-            }).catch(error => {
-                console.log(error)
-                alertError(JSON.parse(error))
-                reject(JSON.parse(error))
+            this.eventLogin().then(() => {
+                const apiUrl = "/" + this.eventID + "/Vote/" + voteID + "/VoteIt?OptionID=" + optionID
+                let headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
+                    resolve(response)
+                }).catch(error => {
+                    console.log(error)
+                    alertError(JSON.parse(error))
+                    reject(JSON.parse(error))
+                })
             })
         })
     }
@@ -516,40 +555,13 @@ export default class Event {
     //修改註冊資料
     editAccount(answer, fileArray = []) {
         return new Promise((resolve, reject) => {
-            const apiUrl = "/Account/Edit"
-            let postData = new FormData()
-            postData.append("AnsJSON", JSON.stringify(answer))
-            for (var i = 0; i < fileArray.length; i++) {
-                postData.append("Files", fileArray[i])
-            }
-            let headerConfig = [
-                {
-                    name: "Authorization",
-                    value: "bearer " + this.idToken
-                }
-            ]
-            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
-                resolve(response)
-            }).catch(error => {
-                let jsonErr = null
-                try {
-                    jsonErr = JSON.parse(error)
-                    alertError(jsonErr)
-                    reject(jsonErr)
-                } catch (err) {
-                    //錯誤response非Object時
-                    console.log(err)
-                    alert("送出失敗")
-                    reject(error)
-                }
-            })
-        })
-    }
-    getEditData() {
-        return new Promise((resolve, reject) => {
-            try {
+            this.eventLogin().then(() => {
                 const apiUrl = "/Account/Edit"
+                let postData = new FormData()
+                postData.append("AnsJSON", JSON.stringify(answer))
+                for (var i = 0; i < fileArray.length; i++) {
+                    postData.append("Files", fileArray[i])
+                }
                 let headerConfig = [
                     {
                         name: "Authorization",
@@ -557,10 +569,41 @@ export default class Event {
                     }
                 ]
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
-            } catch (error) {
-                reject(JSON.parse(error.message))
-            }
+                httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
+                    resolve(response)
+                }).catch(error => {
+                    let jsonErr = null
+                    try {
+                        jsonErr = JSON.parse(error)
+                        alertError(jsonErr)
+                        reject(jsonErr)
+                    } catch (err) {
+                        //錯誤response非Object時
+                        console.log(err)
+                        alert("送出失敗")
+                        reject(error)
+                    }
+                })
+            })
+        })
+    }
+    getEditData() {
+        return new Promise((resolve, reject) => {
+            this.eventLogin().then(() => {
+                try {
+                    const apiUrl = "/Account/Edit"
+                    let headerConfig = [
+                        {
+                            name: "Authorization",
+                            value: "bearer " + this.idToken
+                        }
+                    ]
+                    if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                    resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
+                } catch (error) {
+                    reject(JSON.parse(error.message))
+                }
+            })
         })
     }
 }
