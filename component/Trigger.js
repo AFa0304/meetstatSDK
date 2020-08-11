@@ -11,7 +11,7 @@ export default class Trigger {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/Trigger/" + this.triggerID
-                const tokens = getTriggerToken(this.triggerID, this.DomainType)
+                const tokens = getTriggerToken(this.triggerID, this.DomainType, this.apiVersion)
                 let headerConfig = [
                     {
                         name: "RequestToken",
@@ -29,11 +29,11 @@ export default class Trigger {
 }
 
 // 取得Trigger AntiforgeryToken
-function getTriggerToken(triggerID, DomainType) {
+function getTriggerToken(triggerID, DomainType, apiVersion) {
     try {
         const apiUrl = "/Trigger/" + triggerID
         let headerConfig = []
-        if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+        if (apiVersion) { headerConfig.push({ name: "api-version", value: apiVersion }) }
         return (httpRequest("get", apiUrl, false, {}, headerConfig, DomainType))
     } catch (error) {
         return (JSON.parse(error.message))
