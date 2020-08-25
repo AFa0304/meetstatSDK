@@ -265,29 +265,34 @@ export default class ChatRoom {
     //登入活動並換token
     eventLogin() {
         return new Promise((resolve, reject) => {
-            const chatRoom = this
-            const apiUrl = "/Account/EventLogin"
-            const postData = {
-                "EventID": this.eventID
-            }
-            let headerConfig = [
-                {
-                    name: "Authorization",
-                    value: "bearer " + this.idToken
+            if (this.idToken.length) {
+                const chatRoom = this
+                const apiUrl = "/Account/EventLogin"
+                const postData = {
+                    "EventID": this.eventID
                 }
-            ]
-            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, 0).then(response => {
-                auth().signInWithCustomToken(response.EventAccessToken).then(function () {
-                    auth().currentUser.getIdToken().then(function (newIdToken) {
-                        chatRoom.idToken = newIdToken
-                        resolve(response)
+                let headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                httpRequestPromise("post", apiUrl, true, postData, headerConfig, 0).then(response => {
+                    auth().signInWithCustomToken(response.EventAccessToken).then(function () {
+                        auth().currentUser.getIdToken().then(function (newIdToken) {
+                            chatRoom.idToken = newIdToken
+                            resolve(response)
+                        })
                     })
+                }).catch(error => {
+                    alertError(JSON.parse(error))
+                    reject(JSON.parse(error))
                 })
-            }).catch(error => {
-                alertError(JSON.parse(error))
-                reject(JSON.parse(error))
-            })
+            } else {
+                console.warn("eventLogin is Failed , token is empty")
+                resolve("token is empty")
+            }
         })
     }
 }
