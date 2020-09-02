@@ -138,12 +138,14 @@ export default class Event {
         })
     }
     //送出註冊表單
-    submitRegQuest(answer, fileArray = [], isAlertError = true) {
+    submitRegQuest(answer, ticketID, eventUserStatusID, fileArray = [], isAlertError = true) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/EventReg"
             const postData = new FormData()
             let headerConfig = []
             if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+            if (ticketID) { postData.append("TicketID", ticketID) }
+            if (eventUserStatusID) { postData.append("EventUserStatusID", eventUserStatusID) }
             postData.append("AnsJSON", JSON.stringify(answer))
             for (var i = 0; i < fileArray.length; i++) {
                 postData.append("Files", fileArray[i])

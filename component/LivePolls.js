@@ -112,29 +112,34 @@ export default class LivePolls {
     //登入活動
     eventLogin() {
         return new Promise((resolve, reject) => {
-            const livePolls = this
-            const apiUrl = "/Account/EventLogin"
-            const postData = {
-                "EventID": this.eventID
-            }
-            let headerConfig = [
-                {
-                    name: "Authorization",
-                    value: "bearer " + this.idToken
+            if (this.idToken.length) {
+                const livePolls = this
+                const apiUrl = "/Account/EventLogin"
+                const postData = {
+                    "EventID": this.eventID
                 }
-            ]
-            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, 0).then(response => {
-                auth().signInWithCustomToken(response.EventAccessToken).then(function () {
-                    auth().currentUser.getIdToken().then(function (newIdToken) {
-                        livePolls.idToken = newIdToken
-                        resolve(response)
+                let headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                httpRequestPromise("post", apiUrl, true, postData, headerConfig, 0).then(response => {
+                    auth().signInWithCustomToken(response.EventAccessToken).then(function () {
+                        auth().currentUser.getIdToken().then(function (newIdToken) {
+                            livePolls.idToken = newIdToken
+                            resolve(response)
+                        })
                     })
+                }).catch(error => {
+                    alertError(JSON.parse(error))
+                    reject(JSON.parse(error))
                 })
-            }).catch(error => {
-                alertError(JSON.parse(error))
-                reject(JSON.parse(error))
-            })
+            } else {
+                console.warn("eventLogin is Failed , token is empty")
+                resolve("token is empty")
+            }
         })
     }
 }
