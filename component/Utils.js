@@ -44,7 +44,6 @@ export function handleAnswerChange(event, answers) {
             answers[exist_index].value = value
         }
     }
-    console.log(answers)
     return answers
 }
 
