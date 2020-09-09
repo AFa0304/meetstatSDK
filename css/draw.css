@@ -1,0 +1,32 @@
+#draw-container {
+    width            : 100%;
+    position         : relative;
+    background-repeat: no-repeat;
+    background-size  : 100% 100%;
+}
+
+#draw-container .draw-text {
+    position: absolute;
+}
+
+#draw-container .draw-text pre,#draw-container textarea {
+    font-family: LiHeiPro, Microsoft JhengHei, -apple-system, BlinkMacSystemFont, "Segoe UI";
+    word-break : break-all;
+    font-size  : 24px;
+    color      : #fff;
+    margin     : 0;
+    line-height: 1.2;
+    overflow   : visible;
+    font-weight: bold;
+}
+
+#draw-container textarea{
+    background-color: transparent;
+    border: none;
+    resize: none;
+    line-height: 1.2;
+    overflow: visible;
+}
+#draw-container textarea:focus{
+    outline: none;
+}
