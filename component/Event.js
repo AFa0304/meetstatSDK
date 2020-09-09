@@ -146,7 +146,7 @@ export default class Event {
             if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             if (ticketID) { postData.append("TicketID", ticketID) }
             if (eventUserStatusID) { postData.append("EventUserStatusID", eventUserStatusID) }
-            if (dependents) { postData.append("Dependents", dependents) }
+            if (dependents) { postData.append("Dependents", JSON.stringify(dependents)) }
             postData.append("AnsJSON", JSON.stringify(answer))
             for (var i = 0; i < fileArray.length; i++) {
                 postData.append("Files", fileArray[i])
@@ -482,6 +482,7 @@ export default class Event {
                 httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                     resolve(response)
                 }).catch(error => {
+                    let jsonErr = null
                     try {
                         jsonErr = JSON.parse(error)
                         alertError(jsonErr)
