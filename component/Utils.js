@@ -22,14 +22,16 @@ export function handleAnswerChange(event, answers) {
             answers.splice(exist_index, 1)
         }
     } else if (type === "file") {
-        const fileType = event.target.files[0].name.split(".")[event.target.files[0].name.split(".").length - 1]
-        const uploadFile = new File([event.target.files[0]], questionID + "." + fileType, { type: event.target.files[0].type })
-        const exist_index = answers.findIndex(x => x.name.indexOf(questionID) !== -1)
-        const isExist = exist_index !== -1
-        if (isExist) {
-            answers[exist_index] = uploadFile
-        } else {
-            answers.push(uploadFile)
+        if (event.target.files[0]) {
+            const fileType = event.target.files[0].name.split(".")[event.target.files[0].name.split(".").length - 1]
+            const uploadFile = new File([event.target.files[0]], questionID + "." + fileType, { type: event.target.files[0].type })
+            const exist_index = answers.findIndex(x => x.name.indexOf(questionID) !== -1)
+            const isExist = exist_index !== -1
+            if (isExist) {
+                answers[exist_index] = uploadFile
+            } else {
+                answers.push(uploadFile)
+            }
         }
     } else { //單選or問答
         const exist_index = answers.findIndex(x => x.name === questionID)

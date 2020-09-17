@@ -116,8 +116,19 @@ export function isGuid(testID) {
 }
 // 彈跳request錯誤訊息
 export function alertError(error) {
-    alert(error.Errors ? error.Errors.length > 0 ? error.Errors[0].Message : error.Message ? error.Message : "操作失敗" : error.Message ? error.Message : "操作失敗")
-    console.log(error.Message)
+    let errorString = ""
+    if (error.Message) {
+        errorString += (error.Message + "\n")
+    }
+    if (error.Errors) {
+        error.Errors.map(error => {
+            return errorString += ("---" + error.Message + "\n")
+        })
+    }
+    if (!error.Message && !error.Errors) {
+        errorString += "操作失敗"
+    }
+    alert(errorString)
 }
 function getDomain(domainType) {
     switch (domainType) {
