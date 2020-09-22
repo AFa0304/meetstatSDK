@@ -1,4 +1,4 @@
-import { alertError, httpRequestPromise, getFetchData } from '../utils/utils'
+import { httpRequestPromise, getFetchData } from '../utils/utils'
 import { auth } from '../../firebase'
 import '../css/draw.css'
 
@@ -166,19 +166,17 @@ export default class Draw {
                 let jsonErr = null
                 try {
                     jsonErr = JSON.parse(error)
-                    alertError(jsonErr)
                     reject(jsonErr)
                 } catch (err) {
                     //錯誤response非Object時
                     console.log(err)
-                    alert("送出失敗")
                     reject(error)
                 }
             })
         })
     }
     //登入活動
-    eventLogin(isAlertError = true) {
+    eventLogin() {
         return new Promise((resolve, reject) => {
             if (this.idToken.length) {
                 const draw = this
@@ -201,9 +199,6 @@ export default class Draw {
                         })
                     })
                 }).catch(error => {
-                    if (isAlertError) {
-                        alertError(JSON.parse(error))
-                    }
                     reject(JSON.parse(error))
                 })
             } else {

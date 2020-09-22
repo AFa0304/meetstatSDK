@@ -26,12 +26,14 @@ export function httpRequest(type = "get", url, isAsync = false, data = {}, heade
             }
         } else {
             if (xhr.response && xhr.response.length) {
+                alertError(JSON.parse(xhr.response))
                 throw new Error(xhr.response)
             } else {
                 const error = {
                     code: xhr.status,
                     message: "發生錯誤"
                 }
+                alertError(error)
                 throw new Error(JSON.stringify(error))
             }
         }
@@ -70,13 +72,14 @@ export function httpRequestPromise(type = "get", url, isAsync = false, data = {}
                 } else {
                     setTimeout(() => {
                         if (xhr.response && xhr.response.length) {
-                            console.log(xhr.response)
+                            alertError(JSON.parse(xhr.response))
                             reject(xhr.response)
                         } else {
                             const error = {
                                 code: xhr.status,
                                 message: "發生錯誤"
                             }
+                            alertError(error)
                             reject(JSON.stringify(error))
                         }
                     }, 500)
@@ -101,11 +104,10 @@ export function getFetchData(type = "get", url, headerSettings = [], DomainType 
         credentials: "omit"
     }).then(response => {
         return response
-    }).then((res) => {
-        return res.json()
+    }).then(response => {
+        return response.json()
     })
 }
-
 // 是否為Guid形式
 export function isGuid(testID) {
     var reg = new RegExp(/^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$/);

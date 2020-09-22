@@ -1,4 +1,4 @@
-import { httpRequest, alertError } from '../utils/utils'
+import { httpRequest } from '../utils/utils'
 
 export default class Trigger {
     constructor(triggerID = "", DomainType = 0) {
@@ -21,7 +21,6 @@ export default class Trigger {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("post", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                alertError(JSON.parse(error.message))
                 reject(JSON.parse(error.message))
             }
         })

@@ -1,4 +1,4 @@
-import { isGuid, httpRequest, alertError, httpRequestPromise, getFetchData } from '../utils/utils'
+import { isGuid, httpRequest, httpRequestPromise, getFetchData } from '../utils/utils'
 import { auth } from '../../firebase'
 
 export default class Event {
@@ -92,12 +92,10 @@ export default class Event {
                     let jsonErr = null
                     try {
                         jsonErr = JSON.parse(error)
-                        alertError(jsonErr)
                         reject(jsonErr)
                     } catch (err) {
                         //錯誤response非Object時
                         console.log(err)
-                        alert("送出失敗")
                         reject(error)
                     }
                 })
@@ -138,7 +136,7 @@ export default class Event {
         })
     }
     //送出註冊表單
-    submitRegQuest(answer, ticketID, eventUserStatusID, fileArray = [], dependents, isAlertError = true) {
+    submitRegQuest(answer, ticketID, eventUserStatusID, fileArray = [], dependents) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/EventReg"
             const postData = new FormData()
@@ -157,12 +155,10 @@ export default class Event {
                 let jsonErr = null
                 try {
                     jsonErr = JSON.parse(error)
-                    if (isAlertError) { alertError(jsonErr) }
                     reject(jsonErr)
                 } catch (err) {
                     //錯誤response非Object時
                     console.log(err)
-                    if (isAlertError) { alert("送出失敗") }
                     reject(error)
                 }
             })
@@ -255,7 +251,7 @@ export default class Event {
         }
     }
     //登入活動
-    eventLogin(isAlertError = true) {
+    eventLogin() {
         return new Promise((resolve, reject) => {
             if (this.idToken.length) {
                 const event = this
@@ -278,9 +274,6 @@ export default class Event {
                         })
                     })
                 }).catch(error => {
-                    if (isAlertError) {
-                        alertError(JSON.parse(error))
-                    }
                     reject(JSON.parse(error))
                 })
             } else {
@@ -290,7 +283,7 @@ export default class Event {
         })
     }
     //登入會議室
-    meetLogin(isAlertError = true) {
+    meetLogin() {
         return new Promise((resolve, reject) => {
             this.eventLogin().then(() => {
                 const apiUrl = "/Account/MeetLogin"
@@ -304,9 +297,6 @@ export default class Event {
                 httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    if (isAlertError) {
-                        alertError(JSON.parse(error))
-                    }
                     reject(JSON.parse(error))
                 })
             })
@@ -485,12 +475,10 @@ export default class Event {
                     let jsonErr = null
                     try {
                         jsonErr = JSON.parse(error)
-                        alertError(jsonErr)
                         reject(jsonErr)
                     } catch (err) {
                         //錯誤response非Object時
                         console.log(err)
-                        alert("送出失敗")
                         reject(error)
                     }
                 })
@@ -539,7 +527,6 @@ export default class Event {
                     resolve(response)
                 }).catch(error => {
                     console.log(error)
-                    alertError(JSON.parse(error))
                     reject(JSON.parse(error))
                 })
             })
@@ -564,7 +551,6 @@ export default class Event {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
-                alertError(JSON.parse(error))
                 reject(JSON.parse(error))
             })
         })
@@ -592,12 +578,10 @@ export default class Event {
                     let jsonErr = null
                     try {
                         jsonErr = JSON.parse(error)
-                        alertError(jsonErr)
                         reject(jsonErr)
                     } catch (err) {
                         //錯誤response非Object時
                         console.log(err)
-                        alert("送出失敗")
                         reject(error)
                     }
                 })

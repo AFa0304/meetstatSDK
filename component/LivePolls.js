@@ -1,4 +1,4 @@
-import { alertError, httpRequestPromise } from '../utils/utils'
+import { httpRequestPromise } from '../utils/utils'
 import { HubConnectionBuilder, HttpTransportType } from '../../@microsoft/signalr'
 import { auth } from '../../firebase'
 
@@ -51,7 +51,6 @@ export default class LivePolls {
                     resolve(true)
                 }).catch(error => {
                     console.log(error)
-                    alert("連線失敗")
                     reject(error)
                 })
             })
@@ -133,7 +132,6 @@ export default class LivePolls {
                         })
                     })
                 }).catch(error => {
-                    alertError(JSON.parse(error))
                     reject(JSON.parse(error))
                 })
             } else {

@@ -1,4 +1,4 @@
-import { httpRequest, alertError, httpRequestPromise } from '../utils/utils'
+import { httpRequest, httpRequestPromise } from '../utils/utils'
 
 export default class Quest {
     constructor(questID = "", idToken = "", DomainType = 0) {
@@ -39,7 +39,6 @@ export default class Quest {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
                 resolve(response)
             }).catch(error => {
-                alertError(JSON.parse(error))
                 reject(JSON.parse(error))
             })
         })
@@ -73,7 +72,6 @@ export default class Quest {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
-                alertError(JSON.parse(error))
                 reject(JSON.parse(error))
             })
         })
@@ -115,7 +113,6 @@ export default class Quest {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
                 resolve(response)
             }).catch(error => {
-                alertError(JSON.parse(error))
                 reject(JSON.parse(error))
             })
         })
