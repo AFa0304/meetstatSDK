@@ -49,13 +49,14 @@ export default class Draw {
     getDrawData() {
         return new Promise((resolve, reject) => {
             try {
-                const apiUrl = "/Draw/" + this.drawID
+                let apiUrl = "/Draw/" + this.drawID
                 let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
+                if (this.eventID) { apiUrl += ("?eventID=" + this.eventID) }
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(getFetchData("get", apiUrl, headerConfig, this.DomainType))
                 // resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
@@ -128,7 +129,7 @@ export default class Draw {
                                 "drawHeight": containerHeight
                             })
                         }
-                    }else{
+                    } else {
                         const textStyles = window.getComputedStyle(textRef)
                         const text_x = parseInt(textStyles.left.replace("px", ""))
                         const text_y = parseInt(textStyles.top.replace("px", ""))
