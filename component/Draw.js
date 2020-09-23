@@ -69,13 +69,14 @@ export default class Draw {
     getTemplates() {
         return new Promise((resolve, reject) => {
             try {
-                const apiUrl = "/Draw/" + this.drawID + "/Template"
+                let apiUrl = "/Draw/" + this.drawID + "/Template"
                 let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
+                if (this.eventID) { apiUrl += ("?eventID=" + this.eventID) }
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(getFetchData("get", apiUrl, headerConfig, this.DomainType))
                 // resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
@@ -88,7 +89,7 @@ export default class Draw {
     getGraffitiWall() {
         return new Promise((resolve, reject) => {
             try {
-                const apiUrl = "/Draw/" + this.drawID + "/GraffitiWall?EventID=" + this.eventID
+                const apiUrl = "/Draw/" + this.drawID + "/GraffitiWall?eventID=" + this.eventID
                 let headerConfig = [
                     {
                         name: "Authorization",
@@ -147,7 +148,7 @@ export default class Draw {
                 });
                 return _drawTexts
             }
-            const apiUrl = "/Draw/" + this.drawID + "/DrawText"
+            let apiUrl = "/Draw/" + this.drawID + "/DrawText"
             const postDatas = {
                 "templateID": this.selectedTemplateID,
                 "drawTexts": getDrawTextDatas(),
@@ -160,6 +161,7 @@ export default class Draw {
                     value: "bearer " + this.idToken
                 }
             ]
+            if (this.eventID) { apiUrl += ("?eventID=" + this.eventID) }
             if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequestPromise("post", apiUrl, true, postDatas, headerConfig, this.DomainType).then(response => {
                 resolve(response)
