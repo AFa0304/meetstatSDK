@@ -26,7 +26,12 @@ export function httpRequest(type = "get", url, isAsync = false, data = {}, heade
             }
         } else {
             if (xhr.response && xhr.response.length) {
-                alertError(JSON.parse(xhr.response))
+                try {
+                    alertError(JSON.parse(xhr.response))
+                } catch (err) {
+                    console.log(err)
+                    alert("發生錯誤")
+                }
                 throw new Error(xhr.response)
             } else {
                 const error = {
@@ -72,7 +77,12 @@ export function httpRequestPromise(type = "get", url, isAsync = false, data = {}
                 } else {
                     setTimeout(() => {
                         if (xhr.response && xhr.response.length) {
-                            alertError(JSON.parse(xhr.response))
+                            try {
+                                alertError(JSON.parse(xhr.response))
+                            } catch (err) {
+                                console.log(err)
+                                alert("發生錯誤")
+                            }
                             reject(xhr.response)
                         } else {
                             const error = {

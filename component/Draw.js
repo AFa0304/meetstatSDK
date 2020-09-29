@@ -120,30 +120,38 @@ export default class Draw {
                             const text_x = parseInt(textStyles.left.replace("px", ""))
                             const text_y = parseInt(textStyles.top.replace("px", ""))
                             const text_fontSize = parseInt(window.getComputedStyle(textRef.childNodes[0]).fontSize.replace("px", ""))
-                            return _drawTexts.push({
+                            let textDatas = {
                                 "fontRatio": text_fontSize / containerWidth,
-                                "fontColorHex": "#ffffff",
+                                "fontColorHex": rgbToHex(window.getComputedStyle(textRef.childNodes[0]).color),
                                 "text": textRef.childNodes[0].innerHTML.replace(/<br>/g, "\n"),
+                                "textName": textRef.getAttribute("name"),
                                 "textPointX": text_x,
                                 "textPointY": text_y,
                                 "drawWidth": containerWidth,
                                 "drawHeight": containerHeight
-                            })
+                            }
+                            if (textRef.getAttribute("frameStart")) { textDatas["FrameStart"] = textRef.getAttribute("frameStart") }
+                            if (textRef.getAttribute("frameEnd")) { textDatas["FrameEnd"] = textRef.getAttribute("frameEnd") }
+                            return _drawTexts.push(textDatas)
                         }
                     } else {
                         const textStyles = window.getComputedStyle(textRef)
                         const text_x = parseInt(textStyles.left.replace("px", ""))
                         const text_y = parseInt(textStyles.top.replace("px", ""))
                         const text_fontSize = parseInt(window.getComputedStyle(textRef).fontSize.replace("px", ""))
-                        return _drawTexts.push({
+                        let textDatas = {
                             "fontRatio": text_fontSize / containerWidth,
-                            "fontColorHex": "#ffffff",
+                            "fontColorHex": rgbToHex(window.getComputedStyle(textRef.childNodes[0]).color),
                             "text": textRef.value,
+                            "textName": textRef.getAttribute("name"),
                             "textPointX": text_x,
                             "textPointY": text_y,
                             "drawWidth": containerWidth,
                             "drawHeight": containerHeight
-                        })
+                        }
+                        if (textRef.getAttribute("frameStart")) { textDatas["FrameStart"] = textRef.getAttribute("frameStart") }
+                        if (textRef.getAttribute("frameEnd")) { textDatas["FrameEnd"] = textRef.getAttribute("frameEnd") }
+                        return _drawTexts.push(textDatas)
                     }
                 });
                 return _drawTexts
@@ -213,13 +221,16 @@ export default class Draw {
 }
 
 export class DrawText {
-    constructor(x = 0, y = 0, fontSize = 16, fontColor = "#ffffff", initText = "", type = 1) {
+    constructor(x = 0, y = 0, fontSize = 16, fontColor = "#ffffff", initText = "", textName = "", frameStart = undefined, frameEnd = undefined, type = 1) {
         this.id = ""
         this.x = x
         this.y = y
         this.fontSize = fontSize
         this.fontColor = fontColor
         this.text = initText
+        this.textName = textName
+        this.frameStart = frameStart
+        this.frameEnd = frameEnd
         this.type = type  // 1=div  2=textarea
         this.init()
     }
@@ -229,10 +240,13 @@ export class DrawText {
             const allText = document.getElementsByClassName("draw-text")
             const textDom = document.createElement(this.type === 1 ? "div" : "textarea")
             textDom.className = "draw-text"
+            textDom.setAttribute("name", this.textName)
             textDom.id = "draw-text-" + (allText.length + 1)
             textDom.style.left = this.x + "%"
             textDom.style.top = this.y + "%"
             this.id = textDom.id
+            if (this.frameStart) { textDom.setAttribute("frameStart", this.frameStart) }
+            if (this.frameEnd) { textDom.setAttribute("frameEnd", this.frameEnd) }
             if (this.type === 1) {
                 const pre = document.createElement("pre")
                 pre.style.fontSize = this.fontSize + "px"
