@@ -125,6 +125,7 @@ export default class Draw {
                                 "fontColorHex": rgbToHex(window.getComputedStyle(textRef.childNodes[0]).color),
                                 "text": textRef.childNodes[0].innerHTML.replace(/<br>/g, "\n"),
                                 "textName": textRef.getAttribute("name"),
+                                "type":textRef.getAttribute("drawType"),
                                 "textPointX": text_x,
                                 "textPointY": text_y,
                                 "drawWidth": containerWidth,
@@ -144,6 +145,7 @@ export default class Draw {
                             "fontColorHex": rgbToHex(window.getComputedStyle(textRef.childNodes[0]).color),
                             "text": textRef.value,
                             "textName": textRef.getAttribute("name"),
+                            "type":textRef.getAttribute("drawType"),
                             "textPointX": text_x,
                             "textPointY": text_y,
                             "drawWidth": containerWidth,
@@ -221,7 +223,7 @@ export default class Draw {
 }
 
 export class DrawText {
-    constructor(x = 0, y = 0, fontSize = 16, fontColor = "#ffffff", initText = "", textName = "", frameStart = undefined, frameEnd = undefined, type = 1) {
+    constructor(x = 0, y = 0, fontSize = 16, fontColor = "#ffffff", initText = "", textName = "", frameStart = undefined, frameEnd = undefined, type = 1, drawType = 1) {
         this.id = ""
         this.x = x
         this.y = y
@@ -232,6 +234,7 @@ export class DrawText {
         this.frameStart = frameStart
         this.frameEnd = frameEnd
         this.type = type  // 1=div  2=textarea
+        this.drawType = drawType // 1=text  2=image
         this.init()
     }
     init() {
@@ -241,6 +244,7 @@ export class DrawText {
             const textDom = document.createElement(this.type === 1 ? "div" : "textarea")
             textDom.className = "draw-text"
             textDom.setAttribute("name", this.textName)
+            textDom.setAttribute("drawType", this.drawType)
             textDom.id = "draw-text-" + (allText.length + 1)
             textDom.style.left = this.x + "%"
             textDom.style.top = this.y + "%"
