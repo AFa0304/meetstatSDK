@@ -3,7 +3,7 @@
     event:input event
     answers:舊的answers
 */
-export function handleAnswerChange(event, answers) {
+export function handleAnswerChange(event, answers, isExtensionalValue = false) {
     const target = event.currentTarget
     const questionID = target.getAttribute("name")
     const type = target.type
@@ -39,12 +39,26 @@ export function handleAnswerChange(event, answers) {
         if (!isExist) {
             const obj = {
                 "name": questionID,
-                "value": value
+                [isExtensionalValue ? "extensionalValue" : "value"]: value
             }
             answers.push(obj)
         } else {
-            answers[exist_index].value = value
+            answers[exist_index][isExtensionalValue ? "extensionalValue" : "value"] = value
         }
+    }
+    return answers
+}
+
+export function handleAnswerChangeByID(questionID, value, answers, isExtensionalValue = false) {
+    const exist_index = answers.findIndex(x => x.name === questionID)
+    if (!exist_index !== -1) {
+        const obj = {
+            "name": questionID,
+            [isExtensionalValue ? "extensionalValue" : "value"]: value
+        }
+        answers.push(obj)
+    } else {
+        answers[exist_index][isExtensionalValue ? "extensionalValue" : "value"] = value
     }
     return answers
 }
