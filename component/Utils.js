@@ -45,7 +45,7 @@ export function handleAnswerChange(event, answers, isExtensionalValue = false) {
         } else {
             answers[exist_index][isExtensionalValue ? "extensionalValue" : "value"] = value
             if(!isExtensionalValue){
-                delete answers[exist_index][extensionalValue]
+                delete answers[exist_index]["extensionalValue"]
             }
         }
     }
