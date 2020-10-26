@@ -44,6 +44,9 @@ export function handleAnswerChange(event, answers, isExtensionalValue = false) {
             answers.push(obj)
         } else {
             answers[exist_index][isExtensionalValue ? "extensionalValue" : "value"] = value
+            if(!isExtensionalValue){
+                delete answers[exist_index][extensionalValue]
+            }
         }
     }
     return answers
