@@ -34,8 +34,15 @@ export function handleAnswerChange(event, answers, isExtensionalValue = false) {
             }
         }
     } else { //單選or問答
-        const exist_index = answers.findIndex(x => x.name === questionID)
-        const isExist = exist_index !== -1
+        let exist_index = answers.findIndex(x => x.name === questionID)
+
+        if (isExtensionalValue) {
+            const optionID = event.getAttribute("optionID")
+            exist_index = answers.findIndex(x => x.name === questionID && x.value === optionID)
+        }
+
+        let isExist = exist_index !== -1
+        
         if (!isExist) {
             const obj = {
                 "name": questionID,
@@ -44,7 +51,7 @@ export function handleAnswerChange(event, answers, isExtensionalValue = false) {
             answers.push(obj)
         } else {
             answers[exist_index][isExtensionalValue ? "extensionalValue" : "value"] = value
-            if(!isExtensionalValue){
+            if (!isExtensionalValue) {
                 delete answers[exist_index]["extensionalValue"]
             }
         }
