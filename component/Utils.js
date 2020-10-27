@@ -37,7 +37,7 @@ export function handleAnswerChange(event, answers, isExtensionalValue = false) {
         let exist_index = answers.findIndex(x => x.name === questionID)
 
         if (isExtensionalValue) {
-            const optionID = target.getAttribute("optionID")
+            const optionID = target.getAttribute("optionid")
             exist_index = answers.findIndex(x => x.name === questionID && x.value === optionID)
         }
 
