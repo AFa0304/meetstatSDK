@@ -21,22 +21,20 @@ export default class Quest {
         })
     }
     //送出問卷
-    submitQuest(answer, fileArray = []) {
+    submitQuest(answer) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/Quest/" + this.questID
-            const postData = new FormData()
-            postData.append("AnsJSON", JSON.stringify(answer))
-            for (var i = 0; i < fileArray.length; i++) {
-                postData.append("Files", fileArray[i])
-            }
             let headerConfig = [
                 {
                     name: "Authorization",
                     value: "bearer " + this.idToken
                 }
             ]
+            const postData = {
+                "ansData": answer
+            }
             if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 reject(JSON.parse(error))

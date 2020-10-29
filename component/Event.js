@@ -136,20 +136,16 @@ export default class Event {
         })
     }
     //送出註冊表單
-    submitRegQuest(answer, ticketID, eventUserStatusID, fileArray = [], dependents) {
+    submitRegQuest(answer, ticketID, eventUserStatusID, dependents) {
         return new Promise((resolve, reject) => {
             const apiUrl = "/" + this.eventID + "/EventReg"
-            const postData = new FormData()
+            let postData = { "ansData": answer }
             let headerConfig = []
             if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-            if (ticketID) { postData.append("TicketID", ticketID) }
-            if (eventUserStatusID) { postData.append("EventUserStatusID", eventUserStatusID) }
-            if (dependents) { postData.append("Dependents", JSON.stringify(dependents)) }
-            postData.append("AnsJSON", JSON.stringify(answer))
-            for (var i = 0; i < fileArray.length; i++) {
-                postData.append("Files", fileArray[i])
-            }
-            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
+            if (ticketID) { postData["TicketID"] = ticketID }
+            if (eventUserStatusID) { postData["eventUserStatusID"] = eventUserStatusID }
+            if (dependents) { postData["Dependents"] = JSON.stringify(dependents) }
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
                 let jsonErr = null
