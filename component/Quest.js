@@ -1,4 +1,4 @@
-import { httpRequest, httpRequestPromise } from '../utils/utils'
+import { uploadFile, httpRequest, httpRequestPromise } from '../utils/utils'
 
 export default class Quest {
     constructor(questID = "", idToken = "", DomainType = 0) {
@@ -115,6 +115,20 @@ export default class Quest {
             }).catch(error => {
                 reject(JSON.parse(error))
             })
+        })
+    }
+    uploadFile(eventID, file, callback = undefined, questionID = "") {
+        return new Promise((resolve, reject) => {
+            const _apiVersion = this.apiVersion ? this.apiVersion : "3.0"
+            if (file) {
+                uploadFile(eventID, this.idToken, this.DomainType, file, _apiVersion, callback, questionID).then(response => {
+                    resolve(response)
+                }).catch(error => {
+                    reject(error)
+                })
+            } else {
+                resolve(console.warn("找不到file"))
+            }
         })
     }
 }

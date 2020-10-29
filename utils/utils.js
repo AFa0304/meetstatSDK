@@ -1,3 +1,36 @@
+
+// 上傳檔案
+export function uploadFile(eventID, idToken, domainType, file, apiVersion, onUploadProgress = undefined, questionID) {
+    return new Promise((resolve, reject) => {
+        if (file) {
+            const apiUrl = "/" + eventID + "/File/Upload"
+            let headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + idToken
+                }
+            ]
+            let formDatas = new FormData()
+            formDatas.append("File", file)
+            if (apiVersion) { headerConfig.push({ name: "api-version", value: apiVersion }) }
+            httpRequestFileUpload(apiUrl, formDatas, headerConfig, domainType, onUploadProgress, questionID).then(response => {
+                resolve(response)
+            }).catch(error => {
+                let jsonErr = null
+                try {
+                    jsonErr = JSON.parse(error)
+                    reject(jsonErr)
+                } catch (err) {
+                    console.log(err)
+                    reject(error)
+                }
+            })
+        } else {
+            resolve(console.warn("找不到File"))
+        }
+    })
+}
+
 // 發送request
 /*
     type: request type
@@ -65,6 +98,54 @@ export function httpRequestPromise(type = "get", url, isAsync = false, data = {}
         } else {
             xhr.send(data && JSON.stringify(data))
         }
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200 && xhr.readyState === 4) {
+                    var s = xhr.responseText;
+                    if (s) {
+                        resolve(JSON.parse(s))
+                    } else {
+                        resolve("")
+                    }
+                } else {
+                    setTimeout(() => {
+                        if (xhr.response && xhr.response.length) {
+                            try {
+                                alertError(JSON.parse(xhr.response))
+                            } catch (err) {
+                                console.log(err)
+                                alert("發生錯誤")
+                            }
+                            reject(xhr.response)
+                        } else {
+                            const error = {
+                                code: xhr.status,
+                                message: "發生錯誤"
+                            }
+                            alertError(error)
+                            reject(JSON.stringify(error))
+                        }
+                    }, 500)
+                }
+            }
+        }
+    })
+}
+//上傳檔案
+export function httpRequestFileUpload(url, data = {}, headerSettings = [], DomainType = 0, onUploadProgress = undefined, questionID) {
+    return new Promise((resolve, reject) => {
+        const apiDomain = getDomain(DomainType)
+        const xhr = new XMLHttpRequest()
+        xhr.open("post", apiDomain + url, true)
+        if (onUploadProgress) {
+            xhr.upload.onprogress = (e) => onUploadProgress(e, questionID)
+        }
+        xhr.setRequestHeader("processData", "false")
+        xhr.withCredentials = true
+        headerSettings.map(setting => {
+            xhr.setRequestHeader(setting.name, setting.value)
+        })
+        xhr.send(data)
         xhr.onreadystatechange = function () {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status === 200 && xhr.readyState === 4) {

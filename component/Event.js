@@ -1,4 +1,4 @@
-import { isGuid, httpRequest, httpRequestPromise, getFetchData } from '../utils/utils'
+import { uploadFile, isGuid, httpRequest, httpRequestPromise, getFetchData } from '../utils/utils'
 import { auth } from '../../firebase'
 
 export default class Event {
@@ -605,6 +605,20 @@ export default class Event {
                     reject(JSON.parse(error.message))
                 }
             })
+        })
+    }
+    uploadFile(file, callback = undefined, questionID = "") {
+        return new Promise((resolve, reject) => {
+            const _apiVersion = this.apiVersion ? this.apiVersion : "3.0"
+            if (file) {
+                uploadFile(this.eventID, this.idToken, this.DomainType, file, _apiVersion, callback, questionID).then(response => {
+                    resolve(response)
+                }).catch(error => {
+                    reject(error)
+                })
+            } else {
+                resolve(console.warn("找不到file"))
+            }
         })
     }
 }
