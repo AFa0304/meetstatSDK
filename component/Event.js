@@ -144,7 +144,7 @@ export default class Event {
             if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             if (ticketID) { postData["TicketID"] = ticketID }
             if (eventUserStatusID) { postData["eventUserStatusID"] = eventUserStatusID }
-            if (dependents) { postData["Dependents"] = JSON.stringify(dependents) }
+            if (dependents) { postData["Dependents"] = dependents }
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {

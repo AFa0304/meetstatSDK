@@ -61,7 +61,7 @@ export function handleAnswerChange(event, answers, isExtensionalValue = false) {
 
 export function handleAnswerChangeByID(questionID, value, answers, isExtensionalValue = false) {
     const exist_index = answers.findIndex(x => x.name === questionID)
-    if (!exist_index !== -1) {
+    if (exist_index == -1) {
         const obj = {
             "name": questionID,
             [isExtensionalValue ? "extensionalValue" : "value"]: value
