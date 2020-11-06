@@ -603,11 +603,11 @@ export default class Event {
             })
         })
     }
-    uploadFile(file, callback = undefined, questionID = "") {
+    uploadFile(file, callback = undefined, questionID = "", fileExtention = []) {
         return new Promise((resolve, reject) => {
             const _apiVersion = this.apiVersion ? this.apiVersion : "3.0"
             if (file) {
-                uploadFile(this.eventID, this.idToken, this.DomainType, file, _apiVersion, callback, questionID).then(response => {
+                uploadFile(this.eventID, this.idToken, this.DomainType, file, _apiVersion, callback, questionID, fileExtention).then(response => {
                     resolve(response)
                 }).catch(error => {
                     reject(error)

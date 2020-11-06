@@ -1,6 +1,6 @@
 
 // 上傳檔案
-export function uploadFile(eventID, idToken, domainType, file, apiVersion, onUploadProgress = undefined, questionID) {
+export function uploadFile(eventID, idToken, domainType, file, apiVersion, onUploadProgress = undefined, questionID, fileExtention = []) {
     return new Promise((resolve, reject) => {
         if (file) {
             const apiUrl = "/" + eventID + "/File/Upload"
@@ -12,6 +12,7 @@ export function uploadFile(eventID, idToken, domainType, file, apiVersion, onUpl
             ]
             let formDatas = new FormData()
             formDatas.append("File", file)
+            if (fileExtention.length) { formDatas.append("ExtentionFilters", fileExtention) }
             if (apiVersion) { headerConfig.push({ name: "api-version", value: apiVersion }) }
             httpRequestFileUpload(apiUrl, formDatas, headerConfig, domainType, onUploadProgress, questionID).then(response => {
                 resolve(response)
@@ -164,7 +165,6 @@ export function httpRequestFileUpload(url, data = {}, headerSettings = [], Domai
                     }
                 } else {
                     delete window["cancleUpload-" + questionID]
-                    console.log(xhr)
                     setTimeout(() => {
                         if (xhr.readyState === 0 && xhr.status === 0) { //取消  
                             resolve("")
