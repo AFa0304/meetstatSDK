@@ -12,7 +12,7 @@ export function uploadFile(eventID, idToken, domainType, file, apiVersion, onUpl
             ]
             let formDatas = new FormData()
             formDatas.append("File", file)
-            if (fileExtention.length) { formDatas.append("ExtentionFilters", fileExtention) }
+            if (fileExtention.length) { formDatas.append("ExtentionFilters", JSON.stringify(fileExtention)) }
             if (apiVersion) { headerConfig.push({ name: "api-version", value: apiVersion }) }
             httpRequestFileUpload(apiUrl, formDatas, headerConfig, domainType, onUploadProgress, questionID).then(response => {
                 resolve(response)
