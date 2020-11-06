@@ -131,6 +131,7 @@ export function httpRequestPromise(type = "get", url, isAsync = false, data = {}
         }
     })
 }
+
 //上傳檔案
 export function httpRequestFileUpload(url, data = {}, headerSettings = [], DomainType = 0, onUploadProgress = undefined, questionID) {
     return new Promise((resolve, reject) => {
@@ -138,6 +139,11 @@ export function httpRequestFileUpload(url, data = {}, headerSettings = [], Domai
         const xhr = new XMLHttpRequest()
         xhr.open("post", apiDomain + url, true)
         if (onUploadProgress) {
+            if (questionID) {
+                window["cancleUpload-" + questionID] = function () {
+                    xhr.abort()
+                }
+            }
             xhr.upload.onprogress = (e) => onUploadProgress(e, questionID)
         }
         xhr.setRequestHeader("processData", "false")
@@ -149,6 +155,7 @@ export function httpRequestFileUpload(url, data = {}, headerSettings = [], Domai
         xhr.onreadystatechange = function () {
             if (xhr.readyState === XMLHttpRequest.DONE) {
                 if (xhr.status === 200 && xhr.readyState === 4) {
+                    delete window["cancleUpload-" + questionID]
                     var s = xhr.responseText;
                     if (s) {
                         resolve(JSON.parse(s))
@@ -156,8 +163,12 @@ export function httpRequestFileUpload(url, data = {}, headerSettings = [], Domai
                         resolve("")
                     }
                 } else {
+                    delete window["cancleUpload-" + questionID]
+                    console.log(xhr)
                     setTimeout(() => {
-                        if (xhr.response && xhr.response.length) {
+                        if (xhr.readyState === 0 && xhr.status === 0) { //取消  
+                            resolve("")
+                        } else if (xhr.response && xhr.response.length) {
                             try {
                                 alertError(JSON.parse(xhr.response))
                             } catch (err) {
