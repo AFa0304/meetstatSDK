@@ -5,11 +5,11 @@ export default class Event {
     constructor(eventID = "", idToken = "", DomainType = 0) {
         this.DomainType = DomainType
         this.eventID = eventID
+        this.luckyDrawID = ""
         this.idToken = idToken
         this.speakerList = []
         this.agendaList = []
         this.questList = []
-        this.luckyDrawList = []
         this.eventData = {}
         this.apiVersion = undefined
     }
@@ -22,15 +22,13 @@ export default class Event {
             getSpeakerList(eventID, DomainType, headerConfig),
             getAgendaList(eventID, DomainType, headerConfig),
             getQuestList(eventID, DomainType, headerConfig),
-            getLuckyDrawList(eventID, DomainType, headerConfig),
             getEventData(eventID, DomainType, headerConfig)
         ]
         await Promise.all(taskList).then(response => {
             this.speakerList = response[0].Items
             this.agendaList = response[1].Agendas
             this.questList = response[2].Items
-            this.luckyDrawList = response[3].Items
-            this.eventData = response[4]
+            this.eventData = response[3]
         }).catch(error => {
             throw new Error(JSON.stringify({ Message: error.toString() }))
         })
@@ -161,10 +159,10 @@ export default class Event {
         })
     }
     //取得獎品清單
-    getLuckyDrawList() {
+    getLuckyDrawList(luckyDrawID) {
         return new Promise((resolve, reject) => {
             try {
-                const apiUrl = "/" + this.eventID + "/LuckyDraw"
+                const apiUrl = "/" + this.eventID + "/LuckyDraw/" + luckyDrawID
                 let headerConfig = []
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType).Items)
@@ -174,11 +172,11 @@ export default class Event {
         })
     }
     //查詢中獎物品
-    getDrawItem() {
+    getDrawItem(luckyDrawID) {
         return new Promise((resolve, reject) => {
             this.eventLogin().then(() => {
                 try {
-                    const apiUrl = "/" + this.eventID + "/LuckyDraw/MyDrawItem"
+                    const apiUrl = "/" + this.eventID + "/LuckyDraw/" + luckyDrawID + "/MyDrawItem"
                     let headerConfig = [
                         {
                             name: "Authorization",
@@ -189,6 +187,32 @@ export default class Event {
                     resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
                 } catch (error) {
                     reject(JSON.parse(error.message))
+                }
+            })
+        })
+    }
+    //來賓抽獎
+    luckyDraw(luckyDrawID) {
+        return new Promise((resolve, reject) => {
+            const apiUrl = "/" + this.eventID + "/LuckyDraw/" + luckyDrawID + "/Draw"
+            let headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + this.idToken
+                }
+            ]
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
+                resolve(response)
+            }).catch(error => {
+                let jsonErr = null
+                try {
+                    jsonErr = JSON.parse(error)
+                    reject(jsonErr)
+                } catch (err) {
+                    //錯誤response非Object時
+                    console.log(err)
+                    reject(error)
                 }
             })
         })
@@ -619,11 +643,6 @@ export default class Event {
     }
 }
 
-//取得獎項清單
-function getLuckyDrawList(eventID, DomainType, headerConfig = []) {
-    const apiUrl = "/" + eventID + "/LuckyDraw"
-    return getFetchData("get", apiUrl, headerConfig, DomainType)
-}
 //取得問卷清單
 function getQuestList(eventID, DomainType, headerConfig = []) {
     const apiUrl = "/" + eventID + "/GetQuest"
