@@ -1,11 +1,9 @@
-import { uploadFile, isGuid, httpRequest, httpRequestPromise, getFetchData } from '../utils/utils'
-import { auth } from '../../firebase'
+import { uploadFile, isGuid, httpRequest, httpRequestPromise, getFetchData, eventLogin, getErrorMessage } from '../utils/utils'
 
 export default class Event {
     constructor(eventID = "", idToken = "", DomainType = 0) {
         this.DomainType = DomainType
         this.eventID = eventID
-        this.luckyDrawID = ""
         this.idToken = idToken
         this.speakerList = []
         this.agendaList = []
@@ -30,7 +28,7 @@ export default class Event {
             this.questList = response[2].Items
             this.eventData = response[3]
         }).catch(error => {
-            throw new Error(JSON.stringify({ Message: error.toString() }))
+            throw (JSON.stringify({ Message: error.toString() }))
         })
     }
     //註冊取得付款頁資訊
@@ -158,65 +156,6 @@ export default class Event {
             })
         })
     }
-    //取得獎品清單
-    getLuckyDrawList(luckyDrawID) {
-        return new Promise((resolve, reject) => {
-            try {
-                const apiUrl = "/" + this.eventID + "/LuckyDraw/" + luckyDrawID
-                let headerConfig = []
-                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType).Items)
-            } catch (error) {
-                reject(JSON.parse(error.message))
-            }
-        })
-    }
-    //查詢中獎物品
-    getDrawItem(luckyDrawID) {
-        return new Promise((resolve, reject) => {
-            this.eventLogin().then(() => {
-                try {
-                    const apiUrl = "/" + this.eventID + "/LuckyDraw/" + luckyDrawID + "/MyDrawItem"
-                    let headerConfig = [
-                        {
-                            name: "Authorization",
-                            value: "bearer " + this.idToken
-                        }
-                    ]
-                    if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                    resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
-                } catch (error) {
-                    reject(JSON.parse(error.message))
-                }
-            })
-        })
-    }
-    //來賓抽獎
-    luckyDraw(luckyDrawID) {
-        return new Promise((resolve, reject) => {
-            const apiUrl = "/" + this.eventID + "/LuckyDraw/" + luckyDrawID + "/Draw"
-            let headerConfig = [
-                {
-                    name: "Authorization",
-                    value: "bearer " + this.idToken
-                }
-            ]
-            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-            httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
-                resolve(response)
-            }).catch(error => {
-                let jsonErr = null
-                try {
-                    jsonErr = JSON.parse(error)
-                    reject(jsonErr)
-                } catch (err) {
-                    //錯誤response非Object時
-                    console.log(err)
-                    reject(error)
-                }
-            })
-        })
-    }
     // 取得Agenda (搜尋ID or 字串 => 若找不到或超過一組則throw error)
     getAgenda(searchStr = "") {
         return new Promise((resolve, reject) => {
@@ -273,40 +212,19 @@ export default class Event {
     //登入活動
     eventLogin() {
         return new Promise((resolve, reject) => {
-            if (this.idToken.length) {
-                const event = this
-                const apiUrl = "/Account/EventLogin"
-                const postData = {
-                    "EventID": this.eventID
-                }
-                let headerConfig = [
-                    {
-                        name: "Authorization",
-                        value: "bearer " + this.idToken
-                    }
-                ]
-                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
-                    auth().signInWithCustomToken(response.EventAccessToken).then(function () {
-                        auth().currentUser.getIdToken().then(function (newIdToken) {
-                            event.idToken = newIdToken
-                            resolve(response)
-                        })
-                    })
-                }).catch(error => {
-                    reject(JSON.parse(error))
-                })
-            } else {
-                console.warn("eventLogin is Failed , token is empty")
-                resolve("token is empty")
-            }
+            eventLogin(this.eventID, this.idToken, this.apiVersion, this.DomainType).then((eventToken) => {
+                this.idToken = eventToken
+                resolve(eventToken)
+            }).catch(error => {
+                reject(getErrorMessage(error).message)
+            })
         })
     }
     //登入會議室
     meetLogin() {
         return new Promise((resolve, reject) => {
             this.eventLogin().then(() => {
-                const apiUrl = "/Account/MeetLogin"
+                const apiUrl = "/Meet/MeetLogin"
                 let headerConfig = [
                     {
                         name: "Authorization",
@@ -439,7 +357,7 @@ export default class Event {
         return new Promise((resolve, reject) => {
             this.eventLogin().then(() => {
                 try {
-                    const apiUrl = "/Meet"
+                    const apiUrl = "/Meet/GetEventRoom"
                     let headerConfig = [
                         {
                             name: "Authorization",
@@ -575,6 +493,40 @@ export default class Event {
             })
         })
     }
+    //Line註冊
+    newUser_Line(lineToken) {
+        return new Promise((resolve, reject) => {
+            const apiUrl = "/Register/NewUser_Line"
+            const postData = {
+                EventID: this.eventID,
+                LineToken: lineToken,
+            }
+            let headerConfig = []
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
+                resolve(response)
+            }).catch(error => {
+                reject(JSON.parse(error))
+            })
+        })
+    }
+    //FB註冊
+    newUser_FB(facebookToken) {
+        return new Promise((resolve, reject) => {
+            const apiUrl = "/Register/NewUser_FB"
+            const postData = {
+                EventID: this.eventID,
+                FacebookToken: facebookToken,
+            }
+            let headerConfig = []
+            if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
+                resolve(response)
+            }).catch(error => {
+                reject(JSON.parse(error))
+            })
+        })
+    }
     //修改註冊資料
     editAccount(answer, fileArray = []) {
         return new Promise((resolve, reject) => {
@@ -625,6 +577,19 @@ export default class Event {
                     reject(JSON.parse(error.message))
                 }
             })
+        })
+    }
+    //解析轉跳網址
+    getRedirectUrl(token) {
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/Redirect/" + token
+                let headerConfig = []
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
+            } catch (error) {
+                reject(JSON.parse(error.message))
+            }
         })
     }
     uploadFile(file, callback = undefined, questionID = "", fileExtention = []) {

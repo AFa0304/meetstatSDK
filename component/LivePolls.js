@@ -1,4 +1,4 @@
-import { httpRequestPromise } from '../utils/utils'
+import { httpRequestPromise, eventLogin, getErrorMessage } from '../utils/utils'
 import { HubConnectionBuilder, HttpTransportType } from '../../@microsoft/signalr'
 import { auth } from '../../firebase'
 
@@ -111,33 +111,12 @@ export default class LivePolls {
     //登入活動
     eventLogin() {
         return new Promise((resolve, reject) => {
-            if (this.idToken.length) {
-                const livePolls = this
-                const apiUrl = "/Account/EventLogin"
-                const postData = {
-                    "EventID": this.eventID
-                }
-                let headerConfig = [
-                    {
-                        name: "Authorization",
-                        value: "bearer " + this.idToken
-                    }
-                ]
-                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                httpRequestPromise("post", apiUrl, true, postData, headerConfig, 0).then(response => {
-                    auth().signInWithCustomToken(response.EventAccessToken).then(function () {
-                        auth().currentUser.getIdToken().then(function (newIdToken) {
-                            livePolls.idToken = newIdToken
-                            resolve(response)
-                        })
-                    })
-                }).catch(error => {
-                    reject(JSON.parse(error))
-                })
-            } else {
-                console.warn("eventLogin is Failed , token is empty")
-                resolve("token is empty")
-            }
+            eventLogin(this.eventID, this.idToken, this.apiVersion, 0).then((eventToken) => {
+                this.idToken = eventToken
+                resolve(eventToken)
+            }).catch(error => {
+                reject(getErrorMessage(error).message)
+            })
         })
     }
 }

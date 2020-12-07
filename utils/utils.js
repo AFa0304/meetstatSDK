@@ -1,3 +1,4 @@
+import { auth } from '../../firebase'
 
 // 上傳檔案
 export function uploadFile(eventID, idToken, domainType, file, apiVersion, onUploadProgress = undefined, questionID, fileExtention = []) {
@@ -51,7 +52,7 @@ export function httpRequest(type = "get", url, isAsync = false, data = {}, heade
     })
     xhr.send(data && JSON.stringify(data))
     if (xhr.readyState === XMLHttpRequest.DONE) {
-        if (xhr.status === 200 && xhr.readyState === 4) {
+        if ((xhr.status === 200 || xhr.status === 204) && xhr.readyState === 4) {
             var s = xhr.responseText;
             if (s) {
                 return JSON.parse(s)
@@ -66,14 +67,14 @@ export function httpRequest(type = "get", url, isAsync = false, data = {}, heade
                     console.log(err)
                     alert("發生錯誤")
                 }
-                throw new Error(xhr.response)
+                throw (xhr.response)
             } else {
                 const error = {
                     code: xhr.status,
                     message: "發生錯誤"
                 }
                 alertError(error)
-                throw new Error(JSON.stringify(error))
+                throw (JSON.stringify(error))
             }
         }
     }
@@ -101,7 +102,7 @@ export function httpRequestPromise(type = "get", url, isAsync = false, data = {}
         }
         xhr.onreadystatechange = function () {
             if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200 && xhr.readyState === 4) {
+                if ((xhr.status === 200 || xhr.status === 204) && xhr.readyState === 4) {
                     var s = xhr.responseText;
                     if (s) {
                         resolve(JSON.parse(s))
@@ -155,7 +156,7 @@ export function httpRequestFileUpload(url, data = {}, headerSettings = [], Domai
         xhr.send(data)
         xhr.onreadystatechange = function () {
             if (xhr.readyState === XMLHttpRequest.DONE) {
-                if (xhr.status === 200 && xhr.readyState === 4) {
+                if ((xhr.status === 200 || xhr.status === 204) && xhr.readyState === 4) {
                     delete window["cancleUpload-" + questionID]
                     var s = xhr.responseText;
                     if (s) {
@@ -210,6 +211,36 @@ export function getFetchData(type = "get", url, headerSettings = [], DomainType 
         return response.json()
     })
 }
+//登入活動
+export function eventLogin(eventID, idToken, apiVersion, domainType) {
+    return new Promise((resolve, reject) => {
+        if (idToken.length) {
+            const apiUrl = "/Account/EventLogin"
+            const postData = {
+                "EventID": eventID
+            }
+            let headerConfig = [
+                {
+                    name: "Authorization",
+                    value: "bearer " + idToken
+                }
+            ]
+            if (apiVersion) { headerConfig.push({ name: "api-version", value: apiVersion }) }
+            httpRequestPromise("post", apiUrl, true, postData, headerConfig, domainType).then(response => {
+                auth().signInWithCustomToken(response.EventAccessToken).then(function () {
+                    auth().currentUser.getIdToken().then(function (newIdToken) {
+                        resolve(newIdToken)
+                    })
+                })
+            }).catch(error => {
+                reject(JSON.parse(error))
+            })
+        } else {
+            console.warn("eventLogin is Failed , token is empty")
+            resolve("token is empty")
+        }
+    })
+}
 // 是否為Guid形式
 export function isGuid(testID) {
     var reg = new RegExp(/^[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}$/);
@@ -233,6 +264,20 @@ export function alertError(error) {
         errorString += "操作失敗"
     }
     alert(errorString)
+}
+// 取得錯誤訊息
+export function getErrorMessage(error) {
+    let jsonErr = null
+    try {
+        jsonErr = JSON.parse(error)
+        return jsonErr
+    } catch (err) {
+        //錯誤response非Object時
+        console.log(err)
+        return {
+            message: "發生錯誤"
+        }
+    }
 }
 function getDomain(domainType) {
     switch (domainType) {

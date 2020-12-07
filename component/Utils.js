@@ -61,7 +61,7 @@ export function handleAnswerChange(event, answers, isExtensionalValue = false) {
 
 export function handleAnswerChangeByID(questionID, value, answers, isExtensionalValue = false) {
     const exist_index = answers.findIndex(x => x.name === questionID)
-    if (exist_index == -1) {
+    if (exist_index === -1) {
         const obj = {
             "name": questionID,
             [isExtensionalValue ? "extensionalValue" : "value"]: value
@@ -71,6 +71,25 @@ export function handleAnswerChangeByID(questionID, value, answers, isExtensional
         answers[exist_index][isExtensionalValue ? "extensionalValue" : "value"] = value
     }
     return answers
+}
+
+export function handleDependentAnswerChangeByID(questionID, value, dependents, dependentGroupID, dependentIndex, isExtensionalValue = false) {
+    let _dependents = JSON.parse(JSON.stringify(dependents))
+    if (isDependentVaild(_dependents, dependentGroupID, dependentIndex)) {
+        const targetRegForm = _dependents.DependentGroup.find(x => x.ID === dependentGroupID).DependentsRegForms[dependentIndex]
+        let answers = targetRegForm.FormSubmit.ans ? targetRegForm.FormSubmit.ans : []
+        answers = handleAnswerChangeByID(questionID, value, answers, isExtensionalValue)
+        return _dependents
+    }
+}
+export function handleDependentAnswerChange(event, dependents, dependentGroupID, dependentIndex, isExtensionalValue = false) {
+    let _dependents = JSON.parse(JSON.stringify(dependents))
+    if (isDependentVaild(_dependents, dependentGroupID, dependentIndex)) {
+        const targetRegForm = _dependents.DependentGroup.find(x => x.ID === dependentGroupID).DependentsRegForms[dependentIndex]
+        let answers = targetRegForm.FormSubmit.ans ? targetRegForm.FormSubmit.ans : []
+        answers = handleAnswerChange(event, answers, isExtensionalValue)
+        return _dependents
+    }
 }
 
 // 取得URL參數(IE需安裝 url-search-params-polyfill )
@@ -130,3 +149,33 @@ export function setUrlToDOM(str) {
     return result
 }
 
+function isDependentVaild(dependent, dependentGroupID, dependentIndex) {
+    if (dependent.dependentGroups) {
+        let targetDependentGroup = dependent.DependentGroup.find(x => x.ID === dependentGroupID)
+        if (targetDependentGroup) {
+            if (targetDependentGroup.DependentsRegForms) {
+                let targetRegForm = targetDependentGroup.DependentsRegForms[dependentIndex]
+                if (targetRegForm) {
+                    if (targetRegForm.FormSubmit) {
+                        return true
+                    } else {
+                        console.warn("FormSubmit不存在")
+                        return false
+                    }
+                } else {
+                    console.warn("dependentsRegForms[index]不存在")
+                    return false
+                }
+            } else {
+                console.warn("找不到dependentsRegForms")
+                return false
+            }
+        } else {
+            console.warn("找不到目標dependentGroup")
+            return false
+        }
+    } else {
+        console.warn("找不到dependents.dependentGroups")
+        return false
+    }
+}

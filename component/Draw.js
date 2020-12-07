@@ -1,5 +1,4 @@
-import { httpRequestPromise, getFetchData } from '../utils/utils'
-import { auth } from '../../firebase'
+import { httpRequestPromise, getFetchData, eventLogin, getErrorMessage } from '../utils/utils'
 import '../css/draw.css'
 
 export default class Draw {
@@ -32,7 +31,7 @@ export default class Draw {
                 dom.appendChild(container)
             }
         }).catch(error => {
-            throw new Error(JSON.stringify({ Message: error.toString() }))
+            throw (JSON.stringify({ Message: error.toString() }))
         })
     }
     //更改template
@@ -125,7 +124,7 @@ export default class Draw {
                                 "fontColorHex": rgbToHex(window.getComputedStyle(textRef.childNodes[0]).color),
                                 "text": textRef.childNodes[0].innerHTML.replace(/<br>/g, "\n"),
                                 "textName": textRef.getAttribute("name"),
-                                "type":textRef.getAttribute("drawType"),
+                                "type": textRef.getAttribute("drawType"),
                                 "textPointX": text_x,
                                 "textPointY": text_y,
                                 "drawWidth": containerWidth,
@@ -145,7 +144,7 @@ export default class Draw {
                             "fontColorHex": rgbToHex(window.getComputedStyle(textRef.childNodes[0]).color),
                             "text": textRef.value,
                             "textName": textRef.getAttribute("name"),
-                            "type":textRef.getAttribute("drawType"),
+                            "type": textRef.getAttribute("drawType"),
                             "textPointX": text_x,
                             "textPointY": text_y,
                             "drawWidth": containerWidth,
@@ -191,33 +190,12 @@ export default class Draw {
     //登入活動
     eventLogin() {
         return new Promise((resolve, reject) => {
-            if (this.idToken.length) {
-                const draw = this
-                const apiUrl = "/Account/EventLogin"
-                const postData = {
-                    "EventID": this.eventID
-                }
-                let headerConfig = [
-                    {
-                        name: "Authorization",
-                        value: "bearer " + this.idToken
-                    }
-                ]
-                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
-                    auth().signInWithCustomToken(response.EventAccessToken).then(function () {
-                        auth().currentUser.getIdToken().then(function (newIdToken) {
-                            draw.idToken = newIdToken
-                            resolve(response)
-                        })
-                    })
-                }).catch(error => {
-                    reject(JSON.parse(error))
-                })
-            } else {
-                console.warn("eventLogin is Failed , token is empty")
-                resolve("token is empty")
-            }
+            eventLogin(this.eventID, this.idToken, this.apiVersion, this.DomainType).then((eventToken) => {
+                this.idToken = eventToken
+                resolve(eventToken)
+            }).catch(error => {
+                reject(getErrorMessage(error).message)
+            })
         })
     }
 }
