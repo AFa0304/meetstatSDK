@@ -157,7 +157,7 @@ export default class ChatRoom {
                         }
                     ]
                     if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                    resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
+                    resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.apiDomain))
                 } catch (error) {
                     reject(JSON.parse(error.message))
                 }
