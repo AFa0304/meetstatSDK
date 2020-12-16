@@ -15,6 +15,7 @@ export default class ChatRoom {
         this.callback_userCount = undefined
         this.callback_popup = undefined
         this.callback_popupLiveQuest = undefined
+        this.callback_onclose = undefined
         this.apiDomain = "https://websocket.meetstat.co"
         this.apiVersion = undefined
     }
@@ -47,6 +48,12 @@ export default class ChatRoom {
                             console.warn("【注意】聊天室未定義『接收即時問卷』之函式")
                         }
                         resolve(true)
+                    })
+                    chatRoom.connection.onclose(error => {
+                        console.log("[MeetStat]connect onclose", error)
+                        if (chatRoom.callback_onclose) {
+                            chatRoom.callback_onclose(chatRoom.connection, error)
+                        }
                     })
                     // 彈跳視窗
                     chatRoom.connection.on("ReceivePopupAgenda", function (response) {
@@ -157,7 +164,7 @@ export default class ChatRoom {
                         }
                     ]
                     if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                    resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.apiDomain))
+                    resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
                 } catch (error) {
                     reject(JSON.parse(error.message))
                 }
