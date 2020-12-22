@@ -65,12 +65,15 @@ export default class ChatRoom {
                     })
                     // 全頻道訊息傳送訊息事件
                     chatRoom.connection.on("ReceiveMessage", function (response) {
-                        const msgData = {
-                            user: response.User,
-                            message: setUrlToDOM(response.Message),
-                            time: response.Time,
-                            role: response.Role
-                        }
+                        let msgData = {}
+                        Object.keys(response).map((objKey) => {
+                            const keyName = objKey.charAt(0).toLowerCase() + objKey.slice(1);
+                            if (objKey !== "Message") {
+                                msgData[keyName] = response[objKey]
+                            } else {
+                                msgData[keyName] = setUrlToDOM(response[objKey])
+                            }
+                        })
                         if (chatRoom.callback_ReceiveMessage && (chatRoom.displaySysMsg || (!chatRoom.displaySysMsg && (response.Message.indexOf('進入聊天室') === -1 && response.Message.indexOf('離開聊天室') === -1)))) {
                             chatRoom.callback_ReceiveMessage(msgData)
                         } else if (!chatRoom.callback_ReceiveMessage) {
@@ -194,10 +197,10 @@ export default class ChatRoom {
         })
     }
     //傳送訊息
-    sendMessage(message) {
+    sendMessage(message, groupID = this.chatRoomID) {
         return new Promise((resolve, reject) => {
             this.eventLogin().then(() => {
-                const apiUrl = "/ChatRoom/SendMessage/" + this.chatRoomID + "?Message=" + message
+                const apiUrl = "/ChatRoom/SendMessage/" + this.chatRoomID + "?Message=" + message + "&GroupID=" + groupID
                 let headerConfig = [
                     {
                         name: "Authorization",
