@@ -30,7 +30,13 @@ export default class ChatRoom {
                         transport: HttpTransportType.WebSockets,
                         accessTokenFactory: () => chatRoom.idToken
                     }
-                    chatRoom.connection = new HubConnectionBuilder().withAutomaticReconnect().withUrl(chatRoom.apiDomain + "/Hub_ChatHub?ChatRoomID=" + chatRoom.chatRoomID, options).build()
+                    let connectUrl = chatRoom.apiDomain + "/Hub_ChatHub?ChatRoomID=" + chatRoom.chatRoomID
+                    if (response.Groups) {
+                        response.Groups.map((group) => {
+                            connectUrl += "&GroupIDs=" + group.ID
+                        })
+                    }
+                    chatRoom.connection = new HubConnectionBuilder().withAutomaticReconnect().withUrl(connectUrl, options).build()
                     chatRoom.connection.start().then(function () {
                         if (chatRoom.callback_ReceiveTopMessage && response.TopMessage) { //初始化置頂貼文
                             chatRoom.callback_ReceiveTopMessage(setUrlToDOM(response.TopMessage))
