@@ -1,4 +1,4 @@
-import { httpRequest, httpRequestPromise, eventLogin, getErrorMessage } from '../utils/utils'
+import { httpRequest, httpRequestPromise, eventLogin, getErrorMessage, getDomain } from '../utils/utils'
 import { HubConnectionBuilder, HttpTransportType } from '../../@microsoft/signalr'
 
 export default class ChatRoom {
@@ -16,7 +16,7 @@ export default class ChatRoom {
         this.callback_popup = undefined
         this.callback_popupLiveQuest = undefined
         this.callback_onclose = undefined
-        this.apiDomain = "https://websocket.meetstat.co"
+        this.apiDomain = getDomain(DomainType)
         this.apiVersion = undefined
     }
     init() {
@@ -165,7 +165,7 @@ export default class ChatRoom {
         return new Promise((resolve, reject) => {
             this.eventLogin().then(() => {
                 try {
-                    const apiUrl = "/ChatRoom/GetChatRoom"
+                    const apiUrl = "/ChatRoom/GetChatRoom/" + this.chatRoomID
                     let headerConfig = [
                         {
                             name: "Authorization",

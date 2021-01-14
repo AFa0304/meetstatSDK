@@ -279,7 +279,7 @@ export function getErrorMessage(error) {
         }
     }
 }
-function getDomain(domainType) {
+export function getDomain(domainType) {
     switch (domainType) {
         case 0:
             return "https://capi.meetstat.co"
@@ -289,6 +289,8 @@ function getDomain(domainType) {
             return "https://meetstatclientapi-beta2.azurewebsites.net"
         case 3:
             return "https://websocket.meetstat.co"
+        case 4:
+            return "https://meetstatwebsocket-slot1.azurewebsites.net/"
         default:
             return "https://capi.meetstat.co"
     }
