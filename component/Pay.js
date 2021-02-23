@@ -1,11 +1,66 @@
 import { httpRequest } from '../utils/utils'
 
 export default class Pay {
-    constructor(invoiceID = "", eventUserID = "", DomainType = 0) {
+    constructor(invoiceID = "", eventUserID = "", idToken = "", DomainType = 0) {
         this.invoiceID = invoiceID
         this.eventUserID = eventUserID
         this.DomainType = DomainType
+        this.idToken = idToken
         this.apiVersion = undefined
+    }
+    //刷退
+    cancelAuthorization() {
+        return new Promise((resolve, reject) => {
+            this.eventLogin().then(() => {
+                let apiUrl = "/Pay/CancelAuthorization?Invoice=" + this.invoiceID
+                let headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
+                    resolve(response)
+                }).catch(error => {
+                    let jsonErr = null
+                    try {
+                        jsonErr = JSON.parse(error)
+                        reject(jsonErr)
+                    } catch (err) {
+                        //錯誤response非Object時
+                        console.log(err)
+                        reject(error)
+                    }
+                })
+            })
+        })
+    }
+    //取得收據
+    getReceipt() {
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/Pay/Receipt"
+                let headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
+            } catch (error) {
+                let jsonErr = null
+                try {
+                    jsonErr = JSON.parse(error)
+                    reject(jsonErr)
+                } catch (err) {
+                    //錯誤response非Object時
+                    console.log(err)
+                    reject(error)
+                }
+            }
+        })
     }
     //註冊取得付款頁資訊
     getReg() {
@@ -16,7 +71,15 @@ export default class Pay {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                let jsonErr = null
+                try {
+                    jsonErr = JSON.parse(error)
+                    reject(jsonErr)
+                } catch (err) {
+                    //錯誤response非Object時
+                    console.log(err)
+                    reject(error)
+                }
             }
         })
     }
@@ -29,7 +92,15 @@ export default class Pay {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                let jsonErr = null
+                try {
+                    jsonErr = JSON.parse(error)
+                    reject(jsonErr)
+                } catch (err) {
+                    //錯誤response非Object時
+                    console.log(err)
+                    reject(error)
+                }
             }
         })
     }
