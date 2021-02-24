@@ -1,6 +1,5 @@
 import { httpRequestPromise, eventLogin, getErrorMessage } from '../utils/utils'
 import { HubConnectionBuilder, HttpTransportType } from '../../@microsoft/signalr'
-import { auth } from '../../firebase'
 
 export default class LivePolls {
     constructor(eventID, pollsID, idToken, DomainType = 3) {
@@ -70,14 +69,7 @@ export default class LivePolls {
                 httpRequestPromise("get", apiUrl, true, {}, headerConfig, this.DomainType, false).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    let jsonErr = null
-                    try {
-                        jsonErr = JSON.parse(error)
-                        reject(jsonErr)
-                    } catch (err) {
-                        console.log(err)
-                        reject(error)
-                    }
+                    reject(getErrorMessage(error))
                 })
             })
         })
@@ -96,14 +88,7 @@ export default class LivePolls {
                 httpRequestPromise("get", apiUrl, true, {}, headerConfig, this.DomainType, false).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    let jsonErr = null
-                    try {
-                        jsonErr = JSON.parse(error)
-                        reject(jsonErr)
-                    } catch (err) {
-                        console.log(err)
-                        reject(error)
-                    }
+                    reject(getErrorMessage(error))
                 })
             })
         })

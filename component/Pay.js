@@ -23,15 +23,7 @@ export default class Pay {
                 httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    let jsonErr = null
-                    try {
-                        jsonErr = JSON.parse(error)
-                        reject(jsonErr)
-                    } catch (err) {
-                        //錯誤response非Object時
-                        console.log(err)
-                        reject(error)
-                    }
+                    reject(getErrorMessage(error))
                 })
             })
         })
@@ -50,15 +42,7 @@ export default class Pay {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                let jsonErr = null
-                try {
-                    jsonErr = JSON.parse(error)
-                    reject(jsonErr)
-                } catch (err) {
-                    //錯誤response非Object時
-                    console.log(err)
-                    reject(error)
-                }
+                reject(getErrorMessage(error))
             }
         })
     }
@@ -71,15 +55,7 @@ export default class Pay {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                let jsonErr = null
-                try {
-                    jsonErr = JSON.parse(error)
-                    reject(jsonErr)
-                } catch (err) {
-                    //錯誤response非Object時
-                    console.log(err)
-                    reject(error)
-                }
+                reject(getErrorMessage(error))
             }
         })
     }
@@ -97,9 +73,7 @@ export default class Pay {
                     jsonErr = JSON.parse(error)
                     reject(jsonErr)
                 } catch (err) {
-                    //錯誤response非Object時
-                    console.log(err)
-                    reject(error)
+                    reject(getErrorMessage(error))
                 }
             }
         })

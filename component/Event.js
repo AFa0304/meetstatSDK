@@ -40,7 +40,7 @@ export default class Event {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                reject(getErrorMessage(error))
             }
         })
     }
@@ -56,14 +56,7 @@ export default class Event {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, false).then(response => {
                 resolve(response)
             }).catch(error => {
-                let jsonErr = null
-                try {
-                    jsonErr = JSON.parse(error)
-                    reject(jsonErr)
-                } catch (err) {
-                    console.log(err)
-                    reject(error)
-                }
+                reject(getErrorMessage(error))
             })
         })
     }
@@ -85,15 +78,7 @@ export default class Event {
                 httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    let jsonErr = null
-                    try {
-                        jsonErr = JSON.parse(error)
-                        reject(jsonErr)
-                    } catch (err) {
-                        //錯誤response非Object時
-                        console.log(err)
-                        reject(error)
-                    }
+                    reject(getErrorMessage(error))
                 })
             })
         })
@@ -113,7 +98,7 @@ export default class Event {
                     if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                     resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
                 } catch (error) {
-                    reject(JSON.parse(error.message))
+                    reject(getErrorMessage(error))
                 }
             })
         })
@@ -127,7 +112,7 @@ export default class Event {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                reject(getErrorMessage(error))
             }
         })
     }
@@ -144,15 +129,7 @@ export default class Event {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
-                let jsonErr = null
-                try {
-                    jsonErr = JSON.parse(error)
-                    reject(jsonErr)
-                } catch (err) {
-                    //錯誤response非Object時
-                    console.log(err)
-                    reject(error)
-                }
+                reject(getErrorMessage(error))
             })
         })
     }
@@ -191,7 +168,7 @@ export default class Event {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                reject(getErrorMessage(error))
             }
         })
     }
@@ -206,7 +183,7 @@ export default class Event {
             if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
             httpRequest("post", apiUrl, false, data, headerConfig, this.DomainType)
         } catch (error) {
-            console.log(error)
+            reject(getErrorMessage(error))
         }
     }
     //登入活動
@@ -235,7 +212,7 @@ export default class Event {
                 httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    reject(JSON.parse(error))
+                    reject(getErrorMessage(error))
                 })
             })
         })
@@ -255,7 +232,7 @@ export default class Event {
                     if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                     resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
                 } catch (error) {
-                    reject(JSON.parse(error.message))
+                    reject(getErrorMessage(error))
                 }
             })
         })
@@ -277,7 +254,7 @@ export default class Event {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                reject(getErrorMessage(error))
             }
         })
     }
@@ -298,7 +275,7 @@ export default class Event {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                reject(getErrorMessage(error))
             }
         })
     }
@@ -316,20 +293,7 @@ export default class Event {
                     if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                     resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
                 } catch (error) {
-                    console.log(error)
-                    let jsonErr = null
-                    try {
-                        jsonErr = JSON.parse(error)
-                        console.log(jsonErr)
-                        reject(jsonErr)
-                    } catch (err) {
-                        //錯誤response非Object時
-                        console.log(err)
-                        reject({
-                            message: "發生錯誤"
-                        })
-                    }
-                    // reject(JSON.parse(error.message))
+                    reject(getErrorMessage(error))
                 }
             })
         })
@@ -348,7 +312,7 @@ export default class Event {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                reject(getErrorMessage(error))
             }
         })
     }
@@ -367,7 +331,7 @@ export default class Event {
                     if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                     resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
                 } catch (error) {
-                    reject(JSON.parse(error.message))
+                    reject(getErrorMessage(error))
                 }
             })
         })
@@ -387,7 +351,7 @@ export default class Event {
                     if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                     resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
                 } catch (error) {
-                    reject(JSON.parse(error.message))
+                    reject(getErrorMessage(error))
                 }
             })
         })
@@ -410,15 +374,7 @@ export default class Event {
                 httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    let jsonErr = null
-                    try {
-                        jsonErr = JSON.parse(error)
-                        reject(jsonErr)
-                    } catch (err) {
-                        //錯誤response非Object時
-                        console.log(err)
-                        reject(error)
-                    }
+                    reject(getErrorMessage(error))
                 })
             })
         })
@@ -432,7 +388,7 @@ export default class Event {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                reject(getErrorMessage(error))
             }
         })
     }
@@ -445,7 +401,7 @@ export default class Event {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                reject(getErrorMessage(error))
             }
         })
     }
@@ -464,8 +420,7 @@ export default class Event {
                 httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    console.log(error)
-                    reject(JSON.parse(error))
+                    reject(getErrorMessage(error))
                 })
             })
         })
@@ -489,7 +444,7 @@ export default class Event {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
-                reject(JSON.parse(error))
+                reject(getErrorMessage(error))
             })
         })
     }
@@ -506,7 +461,7 @@ export default class Event {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
-                reject(JSON.parse(error))
+                reject(getErrorMessage(error))
             })
         })
     }
@@ -523,7 +478,7 @@ export default class Event {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
-                reject(JSON.parse(error))
+                reject(getErrorMessage(error))
             })
         })
     }
@@ -547,15 +502,7 @@ export default class Event {
                 httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    let jsonErr = null
-                    try {
-                        jsonErr = JSON.parse(error)
-                        reject(jsonErr)
-                    } catch (err) {
-                        //錯誤response非Object時
-                        console.log(err)
-                        reject(error)
-                    }
+                    reject(getErrorMessage(error))
                 })
             })
         })
@@ -574,7 +521,7 @@ export default class Event {
                     if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                     resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
                 } catch (error) {
-                    reject(JSON.parse(error.message))
+                    reject(getErrorMessage(error))
                 }
             })
         })
@@ -588,7 +535,7 @@ export default class Event {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                reject(getErrorMessage(error))
             }
         })
     }

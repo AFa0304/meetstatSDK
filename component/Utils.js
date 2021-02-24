@@ -149,6 +149,7 @@ export function setUrlToDOM(str) {
     return result
 }
 
+
 function isDependentVaild(dependent, dependentGroupID, dependentIndex) {
     if (dependent.dependentGroups) {
         let targetDependentGroup = dependent.DependentGroup.find(x => x.ID === dependentGroupID)

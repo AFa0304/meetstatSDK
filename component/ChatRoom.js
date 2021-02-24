@@ -131,7 +131,7 @@ export default class ChatRoom {
                 httpRequestPromise("post", apiUrl, true, data, headerConfig, this.DomainType).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    reject(JSON.parse(error))
+                    reject(getErrorMessage(error))
                 }).finally(() => {
                     this.isSending = false
                 })
@@ -153,7 +153,7 @@ export default class ChatRoom {
                 httpRequestPromise("post", apiUrl, true, data, headerConfig, this.DomainType).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    reject(JSON.parse(error))
+                    reject(getErrorMessage(error))
                 }).finally(() => {
                     this.isSending = false
                 })
@@ -175,7 +175,7 @@ export default class ChatRoom {
                     if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                     resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
                 } catch (error) {
-                    reject(JSON.parse(error.message))
+                    reject(getErrorMessage(error))
                 }
             })
         })
@@ -195,7 +195,7 @@ export default class ChatRoom {
                 httpRequestPromise("get", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    reject(JSON.parse(error))
+                    reject(getErrorMessage(error))
                 }).finally(() => {
                     this.isSending = false
                 })
@@ -217,7 +217,7 @@ export default class ChatRoom {
                 httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    reject(JSON.parse(error))
+                    reject(getErrorMessage(error))
                 }).finally(() => {
                     this.isSending = false
                 })
@@ -242,7 +242,7 @@ export default class ChatRoom {
                 httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    reject(JSON.parse(error))
+                    reject(getErrorMessage(error))
                 }).finally(() => {
                     this.isSending = false
                 })
@@ -264,7 +264,7 @@ export default class ChatRoom {
                 httpRequestPromise("post", apiUrl, true, data, headerConfig, this.DomainType).then(response => {
                     resolve(response)
                 }).catch(error => {
-                    reject(JSON.parse(error))
+                    reject(getErrorMessage(error))
                 }).finally(() => {
                     this.isSending = false
                 })

@@ -1,4 +1,4 @@
-import { uploadFile, httpRequest, httpRequestPromise } from '../utils/utils'
+import { uploadFile, httpRequest, httpRequestPromise, getErrorMessage } from '../utils/utils'
 
 export default class Quest {
     constructor(questID = "", idToken = "", DomainType = 0) {
@@ -16,7 +16,7 @@ export default class Quest {
                 const apiUrl = "/Quest/" + this.questID
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                reject(getErrorMessage(error))
             }
         })
     }
@@ -37,7 +37,7 @@ export default class Quest {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
-                reject(JSON.parse(error))
+                reject(getErrorMessage(error))
             })
         })
     }
@@ -58,7 +58,7 @@ export default class Quest {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType, true).then(response => {
                 resolve(response)
             }).catch(error => {
-                reject(JSON.parse(error))
+                reject(getErrorMessage(error))
             })
         })
     }
@@ -74,7 +74,7 @@ export default class Quest {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("post", apiUrl, false, postData, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                reject(getErrorMessage(error))
             }
         })
     }
@@ -91,7 +91,7 @@ export default class Quest {
             httpRequestPromise("post", apiUrl, true, postData, headerConfig, this.DomainType).then(response => {
                 resolve(response)
             }).catch(error => {
-                reject(JSON.parse(error))
+                reject(getErrorMessage(error))
             })
         })
     }
@@ -109,7 +109,7 @@ export default class Quest {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                reject(getErrorMessage(error))
             }
         })
     }

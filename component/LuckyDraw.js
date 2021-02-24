@@ -22,7 +22,7 @@ export default class LuckyDraw {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                reject(error)
+                reject(getErrorMessage(error))
             }
         })
     }
@@ -40,7 +40,6 @@ export default class LuckyDraw {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                console.log(getErrorMessage(error))
                 reject(getErrorMessage(error))
             }
         })
@@ -104,7 +103,7 @@ export default class LuckyDraw {
                 this.idToken = eventToken
                 resolve(eventToken)
             }).catch(error => {
-                reject(error)
+                reject(getErrorMessage(error).message)
             })
         })
     }

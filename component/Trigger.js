@@ -1,4 +1,4 @@
-import { httpRequest } from '../utils/utils'
+import { httpRequest, getErrorMessage } from '../utils/utils'
 
 export default class Trigger {
     constructor(triggerID = "", DomainType = 0) {
@@ -21,7 +21,7 @@ export default class Trigger {
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
                 resolve(httpRequest("post", apiUrl, false, {}, headerConfig, this.DomainType))
             } catch (error) {
-                reject(JSON.parse(error.message))
+                reject(getErrorMessage(error))
             }
         })
     }
@@ -35,6 +35,6 @@ function getTriggerToken(triggerID, DomainType, apiVersion) {
         if (apiVersion) { headerConfig.push({ name: "api-version", value: apiVersion }) }
         return (httpRequest("get", apiUrl, false, {}, headerConfig, DomainType))
     } catch (error) {
-        return (JSON.parse(error.message))
+        reject(getErrorMessage(error))
     }
 }
