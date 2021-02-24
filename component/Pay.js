@@ -1,4 +1,4 @@
-import { httpRequest } from '../utils/utils'
+import { httpRequest, eventLogin, getErrorMessage } from '../utils/utils'
 
 export default class Pay {
     constructor(invoiceID = "", eventUserID = "", idToken = "", DomainType = 0) {
@@ -9,9 +9,9 @@ export default class Pay {
         this.apiVersion = undefined
     }
     //刷退
-    cancelAuthorization() {
+    cancelAuthorization(eventID) {
         return new Promise((resolve, reject) => {
-            this.eventLogin().then(() => {
+            this.eventLogin(eventID).then(() => {
                 let apiUrl = "/Pay/CancelAuthorization?Invoice=" + this.invoiceID
                 let headerConfig = [
                     {
@@ -102,6 +102,17 @@ export default class Pay {
                     reject(error)
                 }
             }
+        })
+    }
+    //登入活動
+    eventLogin(eventID) {
+        return new Promise((resolve, reject) => {
+            eventLogin(eventID, this.idToken, this.apiVersion, this.DomainType).then((eventToken) => {
+                this.idToken = eventToken
+                resolve(eventToken)
+            }).catch(error => {
+                reject(getErrorMessage(error).message)
+            })
         })
     }
 }
