@@ -32,13 +32,13 @@ export default class Event {
         })
     }
     //註冊取得付款頁資訊
-    getSuccess(eventUserID, invoiceID) {
+    getSuccess(eventUserID, invoiceID, alertError = false) {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/EventReg/" + eventUserID + (invoiceID ? "?InvoiceID=" + invoiceID : "")
                 let headerConfig = []
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType, alertError))
             } catch (error) {
                 reject(getErrorMessage(error))
             }

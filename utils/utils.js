@@ -41,7 +41,7 @@ export function uploadFile(eventID, idToken, domainType, file, apiVersion, onUpl
     data: request data
     headerSetting: header資料 [{name:'headerName',value:'headerValue'},{name:'headerName2',value:'headerValue2'}]
 */
-export function httpRequest(type = "get", url, isAsync = false, data = {}, headerSettings = [], DomainType = 0) {
+export function httpRequest(type = "get", url, isAsync = false, data = {}, headerSettings = [], DomainType = 0, execeteAlertError = true) {
     const apiDomain = getDomain(DomainType)
     const xhr = new XMLHttpRequest()
     xhr.open(type, apiDomain + url, isAsync)
@@ -61,11 +61,13 @@ export function httpRequest(type = "get", url, isAsync = false, data = {}, heade
             }
         } else {
             if (xhr.response && xhr.response.length) {
-                try {
-                    alertError(JSON.parse(xhr.response))
-                } catch (err) {
-                    console.log(err)
-                    alert("發生錯誤")
+                if (execeteAlertError) {
+                    try {
+                        alertError(JSON.parse(xhr.response))
+                    } catch (err) {
+                        console.log(err)
+                        alert("發生錯誤")
+                    }
                 }
                 throw (xhr.response)
             } else {
@@ -73,14 +75,16 @@ export function httpRequest(type = "get", url, isAsync = false, data = {}, heade
                     code: xhr.status,
                     message: "發生錯誤"
                 }
-                alertError(error)
+                if (execeteAlertError) {
+                    alertError(error)
+                }
                 throw (JSON.stringify(error))
             }
         }
     }
 }
 
-export function httpRequestPromise(type = "get", url, isAsync = false, data = {}, headerSettings = [], DomainType = 0, isFormData = false) {
+export function httpRequestPromise(type = "get", url, isAsync = false, data = {}, headerSettings = [], DomainType = 0, isFormData = false, execeteAlertError = true) {
     return new Promise((resolve, reject) => {
         const apiDomain = getDomain(DomainType)
         const xhr = new XMLHttpRequest()
@@ -112,11 +116,13 @@ export function httpRequestPromise(type = "get", url, isAsync = false, data = {}
                 } else {
                     setTimeout(() => {
                         if (xhr.response && xhr.response.length) {
-                            try {
-                                alertError(JSON.parse(xhr.response))
-                            } catch (err) {
-                                console.log(err)
-                                alert("發生錯誤")
+                            if (execeteAlertError) {
+                                try {
+                                    alertError(JSON.parse(xhr.response))
+                                } catch (err) {
+                                    console.log(err)
+                                    alert("發生錯誤")
+                                }
                             }
                             reject(xhr.response)
                         } else {
@@ -124,7 +130,9 @@ export function httpRequestPromise(type = "get", url, isAsync = false, data = {}
                                 code: xhr.status,
                                 message: "發生錯誤"
                             }
-                            alertError(error)
+                            if (execeteAlertError) {
+                                alertError(error)
+                            }
                             reject(JSON.stringify(error))
                         }
                     }, 500)
