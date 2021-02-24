@@ -12,7 +12,7 @@ export default class Pay {
     cancelAuthorization(eventID) {
         return new Promise((resolve, reject) => {
             this.eventLogin(eventID).then(() => {
-                let apiUrl = "/Pay/CancelAuthorization?Invoice=" + this.invoiceID
+                let apiUrl = "/Pay/CancelAuthorization/" + this.invoiceID
                 let headerConfig = [
                     {
                         name: "Authorization",
