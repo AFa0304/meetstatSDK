@@ -1,4 +1,4 @@
-import { httpRequest, eventLogin, getErrorMessage } from '../utils/utils'
+import { httpRequest, httpRequestPromise, eventLogin, getErrorMessage } from '../utils/utils'
 
 export default class Pay {
     constructor(invoiceID = "", eventUserID = "", idToken = "", DomainType = 0) {
