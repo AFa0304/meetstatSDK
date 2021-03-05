@@ -9,18 +9,20 @@ export default class Pay {
         this.apiVersion = undefined
     }
     //刷退
-    cancelAuthorization(eventID) {
+    cancelAuthorization(eventID, cancelDatas) {
         return new Promise((resolve, reject) => {
             this.eventLogin(eventID).then(() => {
                 let apiUrl = "/Pay/CancelAuthorization/" + this.invoiceID
+                let postDatas = {}
                 let headerConfig = [
                     {
                         name: "Authorization",
                         value: "bearer " + this.idToken
                     }
                 ]
+                if (cancelDatas) { postDatas = cancelDatas }
                 if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
-                httpRequestPromise("post", apiUrl, true, {}, headerConfig, this.DomainType).then(response => {
+                httpRequestPromise("post", apiUrl, true, postDatas, headerConfig, this.DomainType).then(response => {
                     resolve(response)
                 }).catch(error => {
                     reject(getErrorMessage(error))

@@ -32,7 +32,7 @@ export default class Event {
         })
     }
     //註冊取得付款頁資訊
-    getSuccess(eventUserID, invoiceID, alertError = false) {
+    getSuccess(eventUserID, invoiceID, alertError = true) {
         return new Promise((resolve, reject) => {
             try {
                 const apiUrl = "/" + this.eventID + "/EventReg/" + eventUserID + (invoiceID ? "?InvoiceID=" + invoiceID : "")
