@@ -80,6 +80,24 @@ export default class Pay {
             }
         })
     }
+    //查詢收據
+    getInvoiceDatas() {
+        return new Promise((resolve, reject) => {
+            try {
+                const apiUrl = "/Pay/Query/" + this.invoiceID
+                let headerConfig = [
+                    {
+                        name: "Authorization",
+                        value: "bearer " + this.idToken
+                    }
+                ]
+                if (this.apiVersion) { headerConfig.push({ name: "api-version", value: this.apiVersion }) }
+                resolve(httpRequest("get", apiUrl, false, {}, headerConfig, this.DomainType))
+            } catch (error) {
+                reject(getErrorMessage(error))
+            }
+        })
+    }
     //登入活動
     eventLogin(eventID) {
         return new Promise((resolve, reject) => {
